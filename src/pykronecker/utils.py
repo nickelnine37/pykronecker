@@ -1,7 +1,10 @@
+from __future__ import annotations
 import numpy as np
 from numpy import ndarray, diag
+from typing import List
 
-def multiply_tensor_product(As: list[ndarray], X: ndarray) -> ndarray:
+
+def multiply_tensor_product(As: List[ndarray], X: ndarray) -> ndarray:
     """
     Optimised routine to compute the result of Ten((A1 ⊗ A2 ⊗ ... ⊗ AN) vec(X))
 
@@ -23,7 +26,7 @@ def multiply_tensor_product(As: list[ndarray], X: ndarray) -> ndarray:
     return ans.transpose()
 
 
-def multiply_tensor_sum(As: list[ndarray], X: ndarray) -> ndarray:
+def multiply_tensor_sum(As: List[ndarray], X: ndarray) -> ndarray:
     """
     Optimised routine to compute the result of Ten((A1 ⊕ A2 ⊕ ... ⊕ AN) vec(X))
 
@@ -47,7 +50,7 @@ def multiply_tensor_sum(As: list[ndarray], X: ndarray) -> ndarray:
     return ans
 
 
-def kronecker_product_literal(As: list[ndarray]) -> ndarray:
+def kronecker_product_literal(As: List[ndarray]) -> ndarray:
     """
     Create an array that is the literal Kronecker product of square matrices As. This should
     never be called for real applications, only used to test the correctness of more optimised
@@ -59,7 +62,7 @@ def kronecker_product_literal(As: list[ndarray]) -> ndarray:
         return np.kron(As[0], kronecker_product_literal(As[1:]))
 
 
-def kronecker_sum_literal(As: list[ndarray]) -> ndarray:
+def kronecker_sum_literal(As: List[ndarray]) -> ndarray:
     """
     Create an array that is the literal Kronecker sum of square matrices As. This should never
     be called for real applications, only used to test the correctness of optimised routines.
@@ -89,7 +92,7 @@ def vec(X: ndarray) -> ndarray:
     return X.reshape(-1, order='F')
 
 
-def ten(x: ndarray, shape: tuple=None, like: ndarray=None) -> ndarray:
+def ten(x: ndarray, shape: tuple = None, like: ndarray = None) -> ndarray:
     """
     Convert a vector x into a tensor of a given shape
     """

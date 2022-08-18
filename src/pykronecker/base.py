@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 from numpy import ndarray
-from typing import Union
+from typing import Union, List
 
 from pykronecker.types import numeric
 
@@ -182,7 +182,7 @@ class KroneckerOperator(ABC):
         """
         Define reverve matrix multiplication in terms of transposes
         """
-        
+
         if isinstance(other, ndarray):
 
             # we have a left-sided tensor multiplication
@@ -303,7 +303,7 @@ class KroneckerOperator(ABC):
         return True
 
     @staticmethod
-    def check_valid_matrices(As: list[ndarray]) -> bool:
+    def check_valid_matrices(As: List[ndarray]) -> bool:
         """
         Check whether As contains a list of square ndarrays suitable for use in
         either a Kronecker product or a Kronecker sum

@@ -1,5 +1,6 @@
+from __future__ import annotations
 from abc import abstractmethod, ABC
-from typing import Callable
+from typing import Callable, List
 
 import numpy as np
 from numpy import ndarray
@@ -95,7 +96,7 @@ class KroneckerBlockBase(KroneckerOperator, ABC):
 
 class KroneckerBlock(KroneckerBlockBase):
 
-    def __init__(self, blocks: list[list]):
+    def __init__(self, blocks: List[list]):
         """
         Create a general block operator. Items in the block can be arrays or operators.
 

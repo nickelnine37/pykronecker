@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 from numpy import ndarray
-from typing import Union
+from typing import Union, List
 from numpy.linalg import inv
 
 # import kronecker as kron
@@ -17,7 +17,7 @@ class BasicKroneckerOperator(KroneckerOperator):
     functionality. 
     """
     
-    def __init__(self, As: list[ndarray]):
+    def __init__(self, As: List[ndarray]):
         """
         Initialise by passing in a sequence of square arrays as Numpy arrays or spmatrices
         """
@@ -46,7 +46,7 @@ class KroneckerProduct(BasicKroneckerOperator):
     Used to represent the object (A1 ⊗ A2 ⊗ ... ⊗ AN), that is the Kronecker product of N square matrices.
     """
 
-    def __init__(self, As: list[ndarray]):
+    def __init__(self, As: List[ndarray]):
         """
         Initialise by passing in a sequence of square arrays as Numpy arrays or spmatrices
         """
@@ -121,7 +121,7 @@ class KroneckerSum(BasicKroneckerOperator):
     Used to represent the object (A1 ⊕ A2 ⊕ ... ⊕ AN), that is the Kronecker sum of N square matrices.
     """
 
-    def __init__(self, As: list[ndarray]):
+    def __init__(self, As: List[ndarray]):
         """
         Initialise by passing in a sequence of square arrays as Numpy arrays or spmatrices
         """
