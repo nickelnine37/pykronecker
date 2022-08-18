@@ -1,4 +1,6 @@
-### VisualStudioCode template
+.coveralls.yml
+
+### VisualStudioCodetemplate
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
