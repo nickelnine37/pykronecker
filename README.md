@@ -1,4 +1,4 @@
-![Logo](https://raw.githubusercontent.com/nickelnine37/pykronecker/main/logo.png)
+![Logo](https://raw.githubusercontent.com/nickelnine37/pykronecker/main/assets/logo.png)
 
 ![Tests](https://github.com/nickelnine37/pykronecker/actions/workflows/tests.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/nickelnine37/pykronecker/badge.svg)](https://coveralls.io/github/nickelnine37/pykronecker)
@@ -7,7 +7,7 @@
 
 This library contains tools for performing efficient matrix operations with [Kronecker products](https://en.wikipedia.org/wiki/Kronecker_product). The Kronecker product between two square matrices *A* and *B* is constructed as follows. 
 
-![Math](assets/kronecker_product.png)
+![Math](https://raw.githubusercontent.com/nickelnine37/pykronecker/main/assets/kronecker_product.png)
 
 If *A* has size (*n* x *n*), and *B* has size (*m* x *m*), then their kronecker product has size (*mn* x *mn*). The aim of this package is to efficiently caluclate matrix-vector multiplications in this expanded space.
 
@@ -28,7 +28,7 @@ Create a `KroneckerProduct` from two or more square numpy arrays.
 
 ```python
 import numpy as np
-from pykronecker.operators import KroneckerProduct
+from pykronecker import KroneckerProduct
 
 A = np.random.normal(size=(5, 5))
 B = np.random.normal(size=(6, 6))
@@ -40,10 +40,10 @@ print(C @ x) # calculate efficiently using the @ operator
 
 A `KronekerSum` can be used in much the same way. The Kronecker sum of two square matrices *A* and *B* is defined as folows.
 
-![Math](assets/kronecker_sum.png)
+![Math](https://raw.githubusercontent.com/nickelnine37/pykronecker/main/assets/kronecker_sum.png)
 
 ```python
-from pykronecker.operators import KroneckerSum
+from pykronecker import KroneckerSum
 
 D = KroneckerSum([A, B])
 print(D @ x)
@@ -52,7 +52,7 @@ print(D @ x)
 `KroneckerDiag` provides support for diagonal matrices.
 
 ```python
-from pykronecker.operators import KroneckerDiag
+from pykronecker import KroneckerDiag
 
 E = KroneckerDiag(np.random.normal(size=5 * 6))
 print(E @ x)

@@ -5,7 +5,7 @@ from numpy import ndarray
 import numpy as np
 
 from pykronecker.base import KroneckerOperator
-from pykronecker.operators import KroneckerProduct, KroneckerDiag, KroneckerSum
+from pykronecker import KroneckerProduct, KroneckerDiag, KroneckerSum
 from pykronecker.utils import kronecker_product_literal, kronecker_sum_literal, kronecker_diag_literal, vec, ten
 
 

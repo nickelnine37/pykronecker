@@ -9,7 +9,7 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
 import numpy as np
 from utils import assert_universal, generate_test_data, assert_pow, assert_pow_fails, assert_self_hadamard, assert_self_hadamard_fails, assert_inv, assert_inv_fails
-from pykronecker.operators import KroneckerProduct, KroneckerDiag
+from pykronecker import KroneckerProduct, KroneckerDiag
 
 
 def test_operators():

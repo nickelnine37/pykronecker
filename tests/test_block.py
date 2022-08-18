@@ -5,7 +5,7 @@ import os
 
 import pytest
 
-from pykronecker.block import KroneckerBlock, KroneckerBlockDiag
+from pykronecker import KroneckerBlock, KroneckerBlockDiag
 from pykronecker.utils import vec
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
