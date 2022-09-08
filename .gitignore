@@ -1,5 +1,7 @@
 .coveralls.yml
 HELPME.md
+TODO.md
+*.ipynb
 
 ### VisualStudioCodetemplate
 .vscode/*
