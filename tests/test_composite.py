@@ -13,7 +13,7 @@ np.set_printoptions(precision=3, linewidth=500, threshold=500, suppress=True, ed
 
 def test_sum():
 
-    X, Y, P, kp_literal, ks_literal, kd_literal, kp_optimised, ks_optimised, kd_optimised = generate_test_data()
+    X, Y, P, kp_literal, ks_literal, kd_literal, kp_optimised, ks_optimised, kd_optimised, ki_literal, ki_optimised = generate_test_data()
 
     literal1 = kp_literal + ks_literal
     literal2 = kd_literal - ks_literal / 2
@@ -40,7 +40,7 @@ def test_sum():
 
 def test_product():
 
-    X, Y, P, kp_literal, ks_literal, kd_literal, kp_optimised, ks_optimised, kd_optimised = generate_test_data()
+    X, Y, P, kp_literal, ks_literal, kd_literal, kp_optimised, ks_optimised, kd_optimised, ki_literal, ki_optimised = generate_test_data()
 
     literal1 = kp_literal @ ks_literal
     literal2 = kd_literal @ ks_literal / 2

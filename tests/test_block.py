@@ -18,7 +18,7 @@ np.set_printoptions(precision=3, linewidth=500, threshold=500, suppress=True, ed
 
 def test_block():
 
-    X, Y, P, kp_literal, ks_literal, kd_literal, kp_optimised, ks_optimised, kd_optimised = generate_test_data()
+    X, Y, P, kp_literal, ks_literal, kd_literal, kp_optimised, ks_optimised, kd_optimised, ki_literal, ki_optimised = generate_test_data()
     x = np.concatenate([vec(X), vec(Y)])
     Q = np.concatenate([P, P], axis=0)
 
@@ -54,7 +54,7 @@ def test_block():
 
 def test_block_diag():
 
-    X, Y, P, kp_literal, ks_literal, kd_literal, kp_optimised, ks_optimised, kd_optimised = generate_test_data()
+    X, Y, P, kp_literal, ks_literal, kd_literal, kp_optimised, ks_optimised, kd_optimised, ki_literal, ki_optimised = generate_test_data()
     x = np.concatenate([vec(X), vec(Y)])
     Q = np.concatenate([P, P], axis=0)
     d = np.concatenate([vec(X), vec(Y), np.random.randn(5)])

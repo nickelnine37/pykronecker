@@ -264,3 +264,91 @@ class KroneckerDiag(KroneckerOperator):
         return 'KroneckerDiag({})'.format(' ⊗ '.join([str(i) for i in reversed(self.A.shape)]))
 
 
+class KroneckerIdentity(KroneckerOperator):
+
+    def __init__(self, size: int | tuple=None, like: KroneckerOperator=None):
+        """
+        Initiaise an Identity matrix using size parameter, or alternatively pass another operator of the same size.
+        """
+
+        if size is None and like is None:
+            raise ValueError('Either shape or like must be passed')
+
+        if size is not None:
+
+            if isinstance(size, (tuple, list, ndarray)):
+                assert len(size) == 2, 'parameter `size` should be length 2'
+                assert size[0] == size[1], 'operator shape should be square'
+                self.shape = tuple(size)
+
+            elif isinstance(size, (int, np.int32, np.int64)):
+                self.shape = (size, size)
+
+        if like is not None:
+            self.shape = like.shape
+
+    def __copy__(self) -> 'KroneckerIdentity':
+        new = KroneckerIdentity(like=self)
+        new.factor = self.factor
+        return new
+
+    def __deepcopy__(self, memodict={}) -> 'KroneckerIdentity':
+        new = KroneckerIdentity(like=self)
+        new.factor = self.factor
+        return new
+
+    def __pow__(self, power: numeric, modulo=None) -> 'KroneckerIdentity':
+
+        if power < 0:
+            raise NotImplementedError
+
+        new = KroneckerIdentity(like=self)
+        new.factor = self.factor ** power
+        return new
+
+    def __matmul__(self, other: Union[KroneckerOperator, ndarray]) -> Union[KroneckerOperator, ndarray]:
+
+        # if other is another KroneckerOperator, modify the factor and return
+        if isinstance(other, KroneckerOperator):
+            self.check_operators_consistent(self, other)
+            new = other.copy()
+            new.factor *= self.factor
+            return new
+
+        else:
+            return super().__matmul__(other)
+
+    def __mul__(self, other: Union['KroneckerDiag', numeric]) -> KroneckerOperator:
+
+        if isinstance(other, KroneckerDiag):
+            self.check_operators_consistent(self, other)
+            return self.factor * other.factor * KroneckerDiag(other.A)
+
+        elif isinstance(other, KroneckerIdentity):
+            self.check_operators_consistent(self, other)
+            return self.factor * other.factor * KroneckerIdentity(like=self)
+
+        # otherwise other should be a scalar, handled in the base class
+        else:
+            return super().__mul__(other)
+
+    def operate(self, other: ndarray) -> ndarray:
+        return self.factor * other
+
+    def inv(self) -> 'KroneckerIdentity':
+        return self.factor ** -1 * KroneckerIdentity(like=self)
+
+    @property
+    def T(self) -> 'KroneckerIdentity':
+        return self
+
+    def to_array(self) -> ndarray:
+        return self.factor * np.eye(self.shape[0])
+
+    def __repr__(self) -> str:
+        return 'KroneckerIdentity({})'.format(self.shape)
+
+    def __str__(self) -> str:
+        return 'KroneckerIdentity({})'.format(self.shape)
+
+

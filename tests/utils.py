@@ -6,6 +6,7 @@ import numpy as np
 
 from pykronecker.base import KroneckerOperator
 from pykronecker import KroneckerProduct, KroneckerDiag, KroneckerSum
+from pykronecker.operators import KroneckerIdentity
 from pykronecker.utils import kronecker_product_literal, kronecker_sum_literal, kronecker_diag_literal, vec, ten
 
 
@@ -36,12 +37,14 @@ def generate_test_data(seed: int = 0):
     kp_literal = kronecker_product_literal([A1, A2, A3, A4])
     ks_literal = kronecker_sum_literal([A1, A2, A3, A4])
     kd_literal = kronecker_diag_literal(D)
+    ki_literal = np.eye(N1 * N2 * N3 * N4)
 
     kp_optimised = KroneckerProduct([A1, A2, A3, A4])
     ks_optimised = KroneckerSum([A1, A2, A3, A4])
     kd_optimised = KroneckerDiag(D)
+    ki_optimised = KroneckerIdentity(size=N1 * N2 * N3 * N4)
 
-    return X, Y, Q, kp_literal, ks_literal, kd_literal, kp_optimised, ks_optimised, kd_optimised
+    return X, Y, Q, kp_literal, ks_literal, kd_literal, kp_optimised, ks_optimised, kd_optimised, ki_literal, ki_optimised
 
 
 def assert_conversions(literal: ndarray, optimised: KroneckerOperator):
@@ -167,6 +170,9 @@ def assert_pow_fails(optimised: KroneckerOperator):
 
 def assert_self_hadamard(literal: ndarray, optimised: KroneckerOperator):
     assert np.allclose(literal * literal, (optimised * optimised).to_array())
+
+def assert_hadamard(literal1: ndarray, optimised1: KroneckerOperator, literal2: ndarray, optimised2: KroneckerOperator):
+    assert np.allclose(literal1 * literal2, (optimised1 * optimised2).to_array())
 
 def assert_self_hadamard_fails(optimised: KroneckerOperator):
 

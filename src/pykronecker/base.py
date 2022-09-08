@@ -168,9 +168,15 @@ class KroneckerOperator(ABC):
         """
 
         from pykronecker.composite import OperatorProduct
+        from pykronecker.operators import KroneckerIdentity
 
         if isinstance(other, ndarray):
             return self.operate(other)
+
+        elif isinstance(other, KroneckerIdentity):
+            new = self.copy()
+            new.factor *= other.factor
+            return new
 
         elif isinstance(other, KroneckerOperator):
             return OperatorProduct(self, other)
