@@ -2,6 +2,7 @@ from __future__ import annotations
 import numpy as np
 from numpy import ndarray, diag
 from typing import List
+from functools import reduce
 
 
 def multiply_tensor_product(As: List[ndarray], X: ndarray) -> ndarray:
@@ -56,10 +57,7 @@ def kronecker_product_literal(As: List[ndarray]) -> ndarray:
     never be called for real applications, only used to test the correctness of more optimised
     routines.
     """
-    if len(As) == 2:
-        return np.kron(As[0], As[1])
-    else:
-        return np.kron(As[0], kronecker_product_literal(As[1:]))
+    return reduce(np.kron, As)
 
 
 def kronecker_sum_literal(As: List[ndarray]) -> ndarray:
