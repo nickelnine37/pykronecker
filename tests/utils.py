@@ -27,11 +27,11 @@ def generate_test_data(seed: int = 0):
     A2 = np.random.randn(N2, N2)
     A3 = np.random.randn(N3, N3)
     A4 = np.random.randn(N4, N4)
-    D = np.random.randn(N4, N3, N2, N1)
+    D = np.random.randn(N1, N2, N3, N4)
 
-    X = np.random.randn(N4, N3, N2, N1)
-    Y = np.random.randn(N4, N3, N2, N1)
-    Q = np.random.randn(N4 * N3 * N2 * N1, K)
+    X = np.random.randn(N1, N2, N3, N4)
+    Y = np.random.randn(N1, N2, N3, N4)
+    Q = np.random.randn(N1 * N2 * N3 * N4, K)
 
     # create actual array structures
     kp_literal = kronecker_product_literal([A1, A2, A3, A4])
@@ -101,7 +101,7 @@ def assert_ten_matrix_multiply(X: ndarray, literal: ndarray, optimised: Kronecke
     Assert forwards and backwards ten matrix multiplication
     """
     assert np.allclose(ten(literal @ vec(X), like=X), optimised @ X)  # test forward matrix multiplication
-    assert np.allclose(ten(vec(X) @ literal, like=X), X @ optimised)  # test backward matrix multiplication
+    assert np.allclose(ten(vec(X) @ literal, shape=X.shape), X @ optimised)  # test backward matrix multiplication
 
 
 def assert_np_matmul(X: ndarray, literal: ndarray, optimised: KroneckerOperator):
@@ -189,6 +189,14 @@ def assert_inv_fails(optimised: KroneckerOperator):
         optimised.inv()
 
 
+def assert_shape_fails(optimised: KroneckerOperator):
+
+    x = np.random.randn(int(np.prod(optimised.shape) + 1))
+
+    with pytest.raises(ValueError):
+        optimised @ x
+
+
 
 def assert_universal(X: ndarray, P: ndarray, literal: ndarray, optimised: KroneckerOperator):
     """
@@ -207,6 +215,7 @@ def assert_universal(X: ndarray, P: ndarray, literal: ndarray, optimised: Kronec
     assert_ten_matrix_multiply(X, literal, optimised)
     assert_np_matmul(X, literal, optimised)
     assert_multivec_matrix_multiply(P, literal, optimised)
+    assert_shape_fails(optimised)
 
     # math
     assert_sum(literal, optimised)

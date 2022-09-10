@@ -8,7 +8,7 @@ from numpy.linalg import inv
 # import kronecker as kron
 from pykronecker.base import KroneckerOperator
 from pykronecker.types import numeric
-from pykronecker.utils import vec, multiply_tensor_product, multiply_tensor_sum, ten, kronecker_product_literal, kronecker_sum_literal, kronecker_diag_literal
+from pykronecker.utils import multiply_tensor_product, multiply_tensor_sum, multiply_tensor_diag, multiply_tensor_identity, kronecker_product_literal, kronecker_sum_literal, kronecker_diag_literal
 
 
 class BasicKroneckerOperator(KroneckerOperator):
@@ -80,28 +80,7 @@ class KroneckerProduct(BasicKroneckerOperator):
             return super().__mul__(other)
 
     def operate(self, other: ndarray) -> ndarray:
-
-        other = np.squeeze(other)
-
-        # handle when other is a vector
-        if other.ndim == 1:
-            other_ten = ten(other, shape=tuple(A.shape[0] for A in reversed(self.As)))
-            return self.factor * vec(multiply_tensor_product(self.As, other_ten))
-
-        # handle when other is a matrix of column vectors
-        elif other.ndim == 2 and other.shape[0] == len(self):
-
-            out = np.zeros_like(other)
-
-            for i in range(other.shape[1]):
-                other_ten = ten(other[:, i], shape=tuple(A.shape[0] for A in reversed(self.As)))
-                out[:, i] = vec(multiply_tensor_product(self.As, other_ten))
-
-            return self.factor * out
-
-        # handle when other is a tensor
-        else:
-            return self.factor * multiply_tensor_product(self.As, other)
+        return self.factor * multiply_tensor_product(self.As, other)
 
     def inv(self) -> 'KroneckerProduct':
         return (1 / self.factor) * KroneckerProduct([inv(A) for A in self.As])
@@ -131,28 +110,7 @@ class KroneckerSum(BasicKroneckerOperator):
         raise NotImplementedError
 
     def operate(self, other: ndarray) -> ndarray:
-
-        other = np.squeeze(other)
-
-        # handle when other is a vector
-        if other.ndim == 1:
-            other_ten = ten(other, shape=tuple(A.shape[0] for A in reversed(self.As)))
-            return self.factor * vec(multiply_tensor_sum(self.As, other_ten))
-
-        # handle when other is a matrix of column vectors
-        elif other.ndim == 2 and other.shape[0] == len(self):
-
-            out = np.zeros_like(other)
-
-            for i in range(other.shape[1]):
-                other_ten = ten(other[:, i], shape=tuple(A.shape[0] for A in reversed(self.As)))
-                out[:, i] = vec(multiply_tensor_sum(self.As, other_ten))
-
-            return self.factor * out
-
-        # handle when other is a tensor
-        else:
-            return self.factor * multiply_tensor_sum(self.As, other)
+        return self.factor * multiply_tensor_sum(self.As, other)
 
     def inv(self) -> KroneckerOperator:
         raise NotImplementedError
@@ -228,24 +186,7 @@ class KroneckerDiag(KroneckerOperator):
             return super().__mul__(other)
 
     def operate(self, other: ndarray) -> ndarray:
-
-        # handle when other is a vector
-        if other.ndim == 1:
-            return self.factor * vec(self.A) * other
-
-        # handle when other is a matrix of column vectors
-        elif other.ndim == 2 and other.shape[0] == len(self):
-
-            out = np.zeros_like(other)
-
-            for i in range(other.shape[1]):
-                out[:, i] = vec(self.A) * other[:, i]
-
-            return self.factor * out
-
-        # handle when other is a tensor
-        else:
-            return self.factor * self.A * other
+        return self.factor * multiply_tensor_diag(self.A, other)
 
     def inv(self) -> 'KroneckerDiag':
         return self.factor * KroneckerDiag(1 / self.A)
@@ -333,7 +274,7 @@ class KroneckerIdentity(KroneckerOperator):
             return super().__mul__(other)
 
     def operate(self, other: ndarray) -> ndarray:
-        return self.factor * other
+        return self.factor * multiply_tensor_identity(self.shape, other)
 
     def inv(self) -> 'KroneckerIdentity':
         return self.factor ** -1 * KroneckerIdentity(like=self)

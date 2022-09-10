@@ -122,26 +122,27 @@ class KroneckerBlock(KroneckerBlockBase):
 
     def operate(self, other: ndarray) -> ndarray:
 
-        if other.ndim == 1:
+        x = other.squeeze()
 
-            assert len(other) == self.shape[1]
+        if x.shape[0] != len(self):
+            raise ValueError(f'other\'s first dimension should have length {len(self)} to match the dimensions of the operator, but it has length {x.shape[0]}')
 
-            out = [np.zeros_like(other[n1:n2]) for n1, n2 in self.iter_edges()]
-            other = [other[n1:n2] for n1, n2 in self.iter_edges()]
+        if x.ndim == 1:
 
-        elif other.ndim == 2:
+            out = [np.zeros_like(x[n1:n2]) for n1, n2 in self.iter_edges()]
+            blocks = [x[n1:n2] for n1, n2 in self.iter_edges()]
 
-            assert other.shape[0] == self.shape[1]
+        elif x.ndim == 2:
 
-            out = [np.zeros_like(other[n1:n2, :]) for n1, n2 in self.iter_edges()]
-            other = [other[n1:n2, :] for n1, n2 in self.iter_edges()]
+            out = [np.zeros_like(x[n1:n2, :]) for n1, n2 in self.iter_edges()]
+            blocks = [x[n1:n2, :] for n1, n2 in self.iter_edges()]
 
         else:
             raise ValueError(f'other must be 1 or 2d but it is {other.ndim}d')
 
         for i in range(self.n_blocks):
             for j in range(self.n_blocks):
-                out[i] += self.blocks[i][j] @ other[j]
+                out[i] += self.blocks[i][j] @ blocks[j]
 
         return self.factor * np.concatenate(out, axis=0)
 
@@ -179,16 +180,19 @@ class KroneckerBlockDiag(KroneckerBlockBase):
 
     def operate(self, other: ndarray) -> ndarray:
         """
-        other should be a vector only
+        Other should be a vector or a matrix of vector columns
         """
 
-        if other.ndim == 1:
-            assert len(other) == self.shape[1]
-            return self.factor * np.concatenate([block @ other[n1:n2] for block, (n1, n2) in zip(self.blocks, self.iter_edges())], axis=0)
+        x = other.squeeze()
 
-        elif other.ndim == 2:
-            assert other.shape[0] == self.shape[1]
-            return self.factor * np.concatenate([block @ other[n1:n2, :] for block, (n1, n2) in zip(self.blocks, self.iter_edges())], axis=0)
+        if x.shape[0] != len(self):
+            raise ValueError(f'other\'s first dimension should have length {len(self)} to match the dimensions of the operator, but it has length {x.shape[0]}')
+
+        if x.ndim == 1:
+            return self.factor * np.concatenate([block @ x[n1:n2] for block, (n1, n2) in zip(self.blocks, self.iter_edges())], axis=0)
+
+        elif x.ndim == 2:
+            return self.factor * np.concatenate([block @ x[n1:n2, :] for block, (n1, n2) in zip(self.blocks, self.iter_edges())], axis=0)
 
         else:
             raise ValueError('other must be 1 or 2d')

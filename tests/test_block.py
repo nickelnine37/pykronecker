@@ -35,10 +35,10 @@ def test_block():
         KroneckerBlock([[['a', 'b']]])
 
     with pytest.raises(ValueError):
-        kb_optimised1 @ np.random.randn(5, 5, 5)
+        kb_optimised1 @ np.random.randn(len(kb_optimised1), 5, 5)
 
     with pytest.raises(ValueError):
-        kb_optimised2 @ np.random.randn(5, 5, 5)
+        kb_optimised2 @ np.random.randn(len(kb_optimised1), 5, 5)
 
     assert_pow_fails(kb_optimised1)
     assert_pow(kb_literal2, kb_optimised2)
@@ -79,8 +79,8 @@ def test_block_diag():
     assert_inv(kbd_literal2, kbd_optimised2)
 
     with pytest.raises(ValueError):
-        kbd_optimised1 @ np.random.randn(5, 5, 5)
+        kbd_optimised1 @ np.random.randn(len(kbd_optimised1), 5, 5)
 
     with pytest.raises(ValueError):
-        kbd_optimised2 @ np.random.randn(5, 5, 5)
+        kbd_optimised2 @ np.random.randn(len(kbd_optimised1), 5, 5)
 
