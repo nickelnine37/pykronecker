@@ -1,6 +1,7 @@
 from __future__ import annotations
 from abc import ABC
 
+import numpy as np
 from numpy import ndarray
 from pykronecker.base import KroneckerOperator
 from pykronecker.types import numeric
@@ -48,7 +49,10 @@ class CompositeOperator(KroneckerOperator, ABC):
     def __deepcopy__(self, memodict={}) -> 'CompositeOperator':
         new = self.__class__(self.A.__deepcopy__(), self.B.__deepcopy__())
         new.factor = self.factor
-        return new 
+        return new
+
+    def conj(self):
+        return np.conj(self.factor) * self.__class__(self.A.conj(), self.B.conj())
 
 
 class OperatorSum(CompositeOperator):

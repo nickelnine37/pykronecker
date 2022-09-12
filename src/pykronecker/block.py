@@ -78,6 +78,9 @@ class KroneckerBlockBase(KroneckerOperator, ABC):
     def T(self) -> 'KroneckerBlockBase':
         return self.factor * self.__class__(blocks=self.apply_to_blocks(lambda block: block.T, transpose=True))
 
+    def conj(self) -> 'KroneckerBlockBase':
+        return np.conj(self.factor)* self.__class__(blocks=self.apply_to_blocks(lambda block: block.conj(), transpose=False))
+
     def __pow__(self, power: numeric, modulo=None) -> 'KroneckerBlockBase':
         new = self.__class__(blocks=self.apply_to_blocks(lambda block: block ** power))
         new.factor = self.factor ** power
@@ -105,7 +108,6 @@ class KroneckerBlock(KroneckerBlockBase):
                        [A31, A32, A33]]
         """
         super().__init__(blocks)
-
 
     def apply_to_blocks(self, function: Callable, transpose=False):
         """

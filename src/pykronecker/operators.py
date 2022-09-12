@@ -41,6 +41,9 @@ class BasicKroneckerOperator(KroneckerOperator):
     def T(self) -> 'BasicKroneckerOperator':
         return self.factor * self.__class__([A.T for A in self.As])
 
+    def conj(self):
+        return  np.conj(self.factor) * self.__class__([A.conj() for A in self.As])
+
 class KroneckerProduct(BasicKroneckerOperator):
     """
     Used to represent the object (A1 ⊗ A2 ⊗ ... ⊗ AN), that is the Kronecker product of N square matrices.
@@ -195,6 +198,9 @@ class KroneckerDiag(KroneckerOperator):
     def T(self) -> 'KroneckerDiag':
         return self
 
+    def conj(self) -> 'KroneckerDiag':
+        return np.conj(self.factor) * KroneckerDiag(self.A.conj())
+
     def to_array(self) -> ndarray:
         return self.factor * kronecker_diag_literal(self.A)
 
@@ -282,6 +288,9 @@ class KroneckerIdentity(KroneckerOperator):
     @property
     def T(self) -> 'KroneckerIdentity':
         return self
+
+    def conj(self) -> 'KroneckerIdentity':
+        return np.conj(self.factor) * self
 
     def to_array(self) -> ndarray:
         return self.factor * np.eye(self.shape[0])

@@ -90,6 +90,8 @@ def assert_conversions(literal: ndarray, optimised: KroneckerOperator):
     """
     assert np.allclose(literal, optimised.to_array())
     assert np.allclose(literal.T, optimised.T.to_array())
+    assert np.allclose(literal.conj(), optimised.conj().to_array())
+    assert np.allclose(literal.conj().T, optimised.H.to_array())
     assert np.allclose(literal, (+optimised).to_array())
     assert np.allclose(-literal, (-optimised).to_array())
 
@@ -161,7 +163,7 @@ def assert_sum(literal: ndarray, optimised: KroneckerOperator):
 
 def assert_scalar_multiply(literal: ndarray, optimised: KroneckerOperator):
     """
-    Test summing operations
+    Test scalar multiply operations with ints, floats, np.floats and comlpex numbers
     """
 
     for factor in [-1, 0, np.random.normal(), np.float64(np.random.normal()), np.random.normal() + (1j) * np.random.normal()]:

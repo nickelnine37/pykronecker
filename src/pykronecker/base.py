@@ -101,6 +101,13 @@ class KroneckerOperator(ABC):
     #     raise NotImplementedError
 
     @abstractmethod
+    def conj(self) -> 'KroneckerOperator':
+        """
+        Return the operator with the complex conjugate applied element-wise
+        """
+        raise NotImplementedError
+
+    @abstractmethod
     def __repr__(self) -> str:
         """
         Subclasses should define their own repr
@@ -167,7 +174,13 @@ class KroneckerOperator(ABC):
         """
         return self.__mul__(1.0 / other)
 
-
+    @property
+    def H(self):
+        """
+        Return the Hermitian conjugate (conjugate transpose) of the operator. For real operators,
+        this is equivelant to the transpose.
+        """
+        return self.conj().T
 
     def __matmul__(self, other: Union['KroneckerOperator', ndarray]) -> Union['KroneckerOperator', ndarray]:
         """
