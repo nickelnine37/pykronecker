@@ -25,6 +25,7 @@ class KroneckerBlockBase(KroneckerOperator, ABC):
         self.cum_block_sizes = [0] + np.cumsum(self.block_sizes).tolist()
         N = sum(self.block_sizes)
         self.shape = (N, N)
+        self.tensor_shape = self.get_tensor_shape()
 
     @abstractmethod
     def apply_to_blocks(self, function: Callable, transpose=False) -> list:
@@ -36,7 +37,11 @@ class KroneckerBlockBase(KroneckerOperator, ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_block_sizes(self):
+    def get_block_sizes(self) -> list:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_tensor_shape(self) -> tuple:
         raise NotImplementedError
     
     def iter_edges(self):
@@ -119,8 +124,11 @@ class KroneckerBlock(KroneckerBlockBase):
         else:
             return [[function(self.blocks[i][j]) for j in range(self.n_blocks)] for i in range(self.n_blocks)]
 
-    def get_block_sizes(self):
+    def get_block_sizes(self) -> list:
         return [self.blocks[i][i].shape[0] for i in range(len(self.blocks))]
+
+    def get_tensor_shape(self) -> tuple:
+        return tuple(self.blocks[i][i].tensor_shape  if isinstance(self.blocks[i][i], KroneckerOperator) else self.blocks[i][i].shape[0] for i in range(len(self.blocks)))
 
     def operate(self, other: ndarray) -> ndarray:
 
@@ -154,6 +162,10 @@ class KroneckerBlock(KroneckerBlockBase):
     def to_array(self) -> ndarray:
         return self.factor * np.block(self.apply_to_blocks(lambda block: block.to_array() if isinstance(block, KroneckerOperator) else block))
 
+    def diag(self):
+        get_diag = lambda block: block.diag() if isinstance(block, KroneckerOperator) else np.diag(block)
+        return self.factor * np.concatenate([get_diag(self.blocks[i][i]) for i in range(self.n_blocks)])
+
     def __repr__(self) -> str:
 
         def to_string(block):
@@ -177,8 +189,11 @@ class KroneckerBlockDiag(KroneckerBlockBase):
     def apply_to_blocks(self, function: Callable, transpose=False):
         return [function(self.blocks[i]) for i in range(self.n_blocks)]
 
-    def get_block_sizes(self):
+    def get_block_sizes(self) -> list:
         return [self.blocks[i].shape[0] for i in range(len(self.blocks))]
+
+    def get_tensor_shape(self) -> tuple:
+        return tuple(self.blocks[i].tensor_shape if isinstance(self.blocks[i], KroneckerOperator) else self.blocks[i].shape[0] for i in range(len(self.blocks)))
 
     def operate(self, other: ndarray) -> ndarray:
         """
@@ -200,7 +215,7 @@ class KroneckerBlockDiag(KroneckerBlockBase):
             raise ValueError('other must be 1 or 2d')
 
     def inv(self) -> 'KroneckerBlockDiag':
-        return self.factor ** -1 * KroneckerBlockDiag(blocks=[block.inv() if isinstance(block, KroneckerOperator) else np.linalg.inv(block) for block in self.blocks])
+        return self.factor ** -1 * KroneckerBlockDiag(blocks=self.apply_to_blocks(lambda block: block.inv() if isinstance(block, KroneckerOperator) else np.linalg.inv(block)))
 
     def to_array(self) -> ndarray:
 
@@ -214,6 +229,9 @@ class KroneckerBlockDiag(KroneckerBlockBase):
                 out[n1:n2, n1:n2] = block
 
         return self.factor * out
+
+    def diag(self) -> ndarray:
+        return self.factor * np.concatenate(self.apply_to_blocks(lambda block: block.diag() if isinstance(block, KroneckerOperator) else np.diag(block)))
 
     def __repr__(self) -> str:
         return 'KroneckerBlockDiag([{}])'.format(', '.join([str(block) if isinstance(block, KroneckerOperator) else f'ndarray{block.shape}' for block in self.blocks]))

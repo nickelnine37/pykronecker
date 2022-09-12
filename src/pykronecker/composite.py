@@ -40,6 +40,7 @@ class CompositeOperator(KroneckerOperator, ABC):
         self.A = A
         self.B = B
         self.shape = self.A.shape
+        self.tensor_shape = A.tensor_shape
     
     def __copy__(self) -> 'CompositeOperator':
         new = self.__class__(self.A.__copy__(), self.B.__copy__())
@@ -51,7 +52,7 @@ class CompositeOperator(KroneckerOperator, ABC):
         new.factor = self.factor
         return new
 
-    def conj(self):
+    def conj(self) -> 'CompositeOperator':
         return np.conj(self.factor) * self.__class__(self.A.conj(), self.B.conj())
 
 
@@ -78,6 +79,9 @@ class OperatorSum(CompositeOperator):
 
     def to_array(self) -> ndarray:
         return self.factor * (self.A.to_array() + self.B.to_array())
+
+    def diag(self) -> ndarray:
+        return self.factor * (self.A.diag() + self.B.diag())
     
     def __pow__(self, power: numeric, modulo=None) -> KroneckerOperator:
         raise NotImplementedError
@@ -87,7 +91,6 @@ class OperatorSum(CompositeOperator):
 
     def __repr__(self) -> str:
         return 'OperatorSum({}, {})'.format(self.A.__repr__(), self.B.__repr__())
-
 
 
 class OperatorProduct(CompositeOperator):
@@ -118,6 +121,9 @@ class OperatorProduct(CompositeOperator):
 
     def to_array(self) -> ndarray:
         return self.factor * self.A.to_array() @ self.B.to_array()
+
+    def diag(self) -> ndarray:
+        return self.factor * (self.A.T * self.B).sum(0)
 
     def __repr__(self) -> str:
         return 'OperatorProduct({}, {})'.format(self.A.__repr__(), self.B.__repr__())

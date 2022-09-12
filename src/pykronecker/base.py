@@ -30,10 +30,10 @@ class KroneckerOperator(ABC):
     Base class defining the behaviour of Kronecker-type operators. It should not be instantiated directly.
     """
 
-    __array_priority__ = 10  # increase priority of class, so it takes precedence when mixing matrix multiplications with ndarrays
-    factor: numeric = 1.0  # a scalar factor multiplying the whole operator
-    shape: tuple[int, int] = (0, 0)  # full (N, N) operator shape
-    # state: dict[str, Any] = {}  # contains any other state that subclasses rely on
+    __array_priority__ = 10             # increase priority of class, so it takes precedence when mixing matrix multiplications with ndarrays
+    factor: numeric = 1.0               # a scalar factor multiplying the whole operator
+    shape: tuple[int, int] = (0, 0)     # full (N, N) operator shape
+    tensor_shape: tuple = None          # the expected shape of tensors this operator acts on
 
     # ------------- ABSTRACT METHODS --------------
     # These should all be defined by sublasses
@@ -93,12 +93,12 @@ class KroneckerOperator(ABC):
 
         raise NotImplementedError
 
-    # @abstractmethod
-    # def diag(self):
-    #     """
-    #     Return a vector representing the diagonal of the operator
-    #     """
-    #     raise NotImplementedError
+    @abstractmethod
+    def diag(self) -> ndarray:
+        """
+        Return a vector representing the diagonal of the operator
+        """
+        raise NotImplementedError
 
     @abstractmethod
     def conj(self) -> 'KroneckerOperator':
@@ -325,6 +325,7 @@ class KroneckerOperator(ABC):
 
         assert all(isinstance(C, KroneckerOperator) for C in [A, B]), f'All operators in this chain must be consistent, but they have types {type(A)} and {type(B)} respectively'
         assert A.shape == B.shape, f'All operators in this chain should have the same shape, but they have shapes {A.shape} and {B.shape} respectively'
+        assert A.tensor_shape == B.tensor_shape, f'All operators in this chain should act on tensors of the same shape, but they act on {A.tensor_shape} and {B.tensor_shape} respectively'
 
         return True
 

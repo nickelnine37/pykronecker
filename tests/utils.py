@@ -42,7 +42,7 @@ def generate_test_data(seed: int = 0):
     kp_optimised = KroneckerProduct([A1, A2, A3, A4])
     ks_optimised = KroneckerSum([A1, A2, A3, A4])
     kd_optimised = KroneckerDiag(D)
-    ki_optimised = KroneckerIdentity(size=N1 * N2 * N3 * N4)
+    ki_optimised = KroneckerIdentity(tensor_shape=(N1, N2, N3, N4))
 
     return X, Y, Q, kp_literal, ks_literal, kd_literal, kp_optimised, ks_optimised, kd_optimised, ki_literal, ki_optimised
 
@@ -79,7 +79,7 @@ def generate_complex_test_data(seed: int = 0):
     kp_optimised = KroneckerProduct([A1, A2, A3, A4])
     ks_optimised = KroneckerSum([A1, A2, A3, A4])
     kd_optimised = KroneckerDiag(D)
-    ki_optimised = KroneckerIdentity(size=N1 * N2 * N3 * N4)
+    ki_optimised = KroneckerIdentity(tensor_shape=(N1, N2, N3, N4))
 
     return X, Y, Q, kp_literal, ks_literal, kd_literal, kp_optimised, ks_optimised, kd_optimised, ki_literal, ki_optimised
 
@@ -159,6 +159,13 @@ def assert_sum(literal: ndarray, optimised: KroneckerOperator):
     assert np.allclose(literal.sum(0), optimised.sum(0))
     assert np.allclose(literal.sum(1), optimised.sum(1))
     assert np.isclose(literal.sum(), optimised.sum())
+
+
+def assert_diag(literal: ndarray, optimised: KroneckerOperator):
+    """
+    Test diag operation
+    """
+    assert np.allclose(np.diag(literal), optimised.diag())
 
 
 def assert_scalar_multiply(literal: ndarray, optimised: KroneckerOperator):
@@ -248,6 +255,7 @@ def assert_universal(X: ndarray, P: ndarray, literal: ndarray, optimised: Kronec
     assert_str(optimised)
     assert_copy(literal, optimised)
     assert_basic_fails(optimised)
+    assert isinstance(optimised.tensor_shape, tuple)
 
     # matrix multiplications
     assert_vec_matrix_multiply(X, literal, optimised)

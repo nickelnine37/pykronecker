@@ -9,7 +9,7 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
 import numpy as np
 from utils import assert_universal, generate_test_data, assert_pow, assert_pow_fails, assert_self_hadamard, \
-    assert_self_hadamard_fails, assert_inv, assert_inv_fails, assert_hadamard, generate_complex_test_data
+    assert_self_hadamard_fails, assert_inv, assert_inv_fails, assert_hadamard, generate_complex_test_data, assert_diag
 from pykronecker import KroneckerProduct, KroneckerDiag, KroneckerSum, KroneckerIdentity
 
 
@@ -19,97 +19,48 @@ def test_operators():
 
     np.set_printoptions(precision=3, linewidth=500, threshold=500, suppress=True, edgeitems=5)
 
-    X, Y, P, kp_literal, ks_literal, kd_literal, kp_optimised, ks_optimised, kd_optimised, ki_literal, ki_optimised = generate_test_data()
+    for generator in [generate_test_data, generate_complex_test_data]:
 
-    assert_universal(X, P, kp_literal, kp_optimised)
-    assert_universal(X, P, ks_literal, ks_optimised)
-    assert_universal(X, P, kd_literal, kd_optimised)
-    assert_universal(X, P, ki_literal, ki_optimised)
+        X, Y, P, kp_literal, ks_literal, kd_literal, kp_optimised, ks_optimised, kd_optimised, ki_literal, ki_optimised = generator()
 
-    assert_inv(kp_literal, kp_optimised)
-    assert_inv(kd_literal, kd_optimised)
-    assert_inv(ki_literal, ki_optimised)
-    assert_inv_fails(ks_optimised)
+        # these should all work for kp, kd, ki
+        for literal, optimised in zip([kp_literal, kd_literal, ki_literal], [kp_optimised, kd_optimised, ki_optimised]):
+            assert_universal(X, P, literal, optimised)
+            assert_pow(literal, optimised)
+            assert_diag(literal, optimised)
+            assert_inv(literal, optimised)
 
-    assert_pow(kp_literal, kp_optimised)
-    assert_pow(kd_literal, kd_optimised)
-    assert_pow(ki_literal, ki_optimised)
-    assert_pow_fails(ks_optimised)
+        assert_universal(X, P, ks_literal, ks_optimised)
+        assert_diag(ks_literal, ks_optimised)
+        assert_inv_fails(ks_optimised)
+        assert_pow_fails(ks_optimised)
 
-    assert_self_hadamard(kp_literal, kp_optimised)
-    assert_self_hadamard(kd_literal, kd_optimised)
-    assert_self_hadamard(ki_literal, ki_optimised)
-    assert_self_hadamard_fails(ks_optimised)
+        # two KroneckerProducts multiplied should give another KroneckerProduct
+        assert isinstance(kp_optimised @ kp_optimised, KroneckerProduct)
 
-    assert_hadamard(ki_literal, ki_optimised, kd_literal, kd_optimised)
+        # two KroneckerDiags multiplied should give another KroneckerDiag
+        assert isinstance(kd_optimised @ kd_optimised, KroneckerDiag)
 
-    # two KroneckerProducts multiplied should give another KroneckerProduct
-    assert isinstance(kp_optimised @ kp_optimised, KroneckerProduct)
+        for op, op_type in zip([kd_optimised, kp_optimised, ks_optimised, ki_optimised], [KroneckerDiag, KroneckerProduct, KroneckerSum, KroneckerIdentity]):
+            assert isinstance(op @ ki_optimised, op_type)
+            assert isinstance(ki_optimised @ op, op_type)
 
-    # two KroneckerDiags multiplied should give another KroneckerDiag
-    assert isinstance(kd_optimised @ kd_optimised, KroneckerDiag)
+        for l1, o1, in zip([kp_literal, ks_literal, kd_literal, ki_literal], [kp_optimised, ks_optimised, kd_optimised, ki_optimised]):
+            for l2, o2 in zip([kp_literal, ks_literal, kd_literal, ki_literal], [kp_optimised, ks_optimised, kd_optimised, ki_optimised]):
+                assert_hadamard(2 * l1, 2 * o1, 0.5 * l2, 0.5 * o2)
+                assert_hadamard(2 * l1, 2 * o1, 0.5 * (l2 + l1), 0.5 * (o2 + o1))
 
-    for op, op_type in zip([kd_optimised, kp_optimised, ks_optimised], [KroneckerDiag, KroneckerProduct, KroneckerSum]):
-        assert isinstance(op @ ki_optimised, op_type)
-        assert isinstance(ki_optimised @ op, op_type)
+        with pytest.raises(TypeError):
+            a = kp_optimised * (kd_optimised @ ks_optimised)
 
-    with pytest.raises(NotImplementedError):
-        a = kd_optimised ** -1
-    with pytest.raises(NotImplementedError):
-        a = ki_optimised ** -1
+        with pytest.raises(TypeError):
+            a = ks_optimised * (kd_optimised @ kp_optimised)
 
-    KroneckerIdentity(size=(10, 10))
+        with pytest.raises(NotImplementedError):
+            a = kd_optimised ** -1
 
-    with pytest.raises(ValueError):
-        a = KroneckerIdentity()
+        with pytest.raises(NotImplementedError):
+            a = ki_optimised ** -1
 
-
-def test_operators_complex():
-
-    print('RUNNING')
-
-    np.set_printoptions(precision=3, linewidth=500, threshold=500, suppress=True, edgeitems=5)
-
-    X, Y, P, kp_literal, ks_literal, kd_literal, kp_optimised, ks_optimised, kd_optimised, ki_literal, ki_optimised = generate_complex_test_data()
-
-    assert_universal(X, P, kp_literal, kp_optimised)
-    assert_universal(X, P, ks_literal, ks_optimised)
-    assert_universal(X, P, kd_literal, kd_optimised)
-    assert_universal(X, P, ki_literal, ki_optimised)
-
-    assert_inv(kp_literal, kp_optimised)
-    assert_inv(kd_literal, kd_optimised)
-    assert_inv(ki_literal, ki_optimised)
-    assert_inv_fails(ks_optimised)
-
-    assert_pow(kp_literal, kp_optimised)
-    assert_pow(kd_literal, kd_optimised)
-    assert_pow(ki_literal, ki_optimised)
-    assert_pow_fails(ks_optimised)
-
-    assert_self_hadamard(kp_literal, kp_optimised)
-    assert_self_hadamard(kd_literal, kd_optimised)
-    assert_self_hadamard(ki_literal, ki_optimised)
-    assert_self_hadamard_fails(ks_optimised)
-
-    assert_hadamard(ki_literal, ki_optimised, kd_literal, kd_optimised)
-
-    # two KroneckerProducts multiplied should give another KroneckerProduct
-    assert isinstance(kp_optimised @ kp_optimised, KroneckerProduct)
-
-    # two KroneckerDiags multiplied should give another KroneckerDiag
-    assert isinstance(kd_optimised @ kd_optimised, KroneckerDiag)
-
-    for op, op_type in zip([kd_optimised, kp_optimised, ks_optimised], [KroneckerDiag, KroneckerProduct, KroneckerSum]):
-        assert isinstance(op @ ki_optimised, op_type)
-        assert isinstance(ki_optimised @ op, op_type)
-
-    with pytest.raises(NotImplementedError):
-        a = kd_optimised ** -1
-    with pytest.raises(NotImplementedError):
-        a = ki_optimised ** -1
-
-    KroneckerIdentity(size=(10, 10))
-
-    with pytest.raises(ValueError):
-        a = KroneckerIdentity()
+        with pytest.raises(ValueError):
+            a = KroneckerIdentity()

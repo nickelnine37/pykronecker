@@ -11,7 +11,7 @@ from pykronecker.utils import vec
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
 import numpy as np
-from utils import assert_universal, generate_test_data, assert_pow, assert_pow_fails, assert_inv, assert_inv_fails
+from utils import assert_universal, generate_test_data, assert_pow, assert_pow_fails, assert_inv, assert_inv_fails, assert_diag
 
 np.set_printoptions(precision=3, linewidth=500, threshold=500, suppress=True, edgeitems=5)
 
@@ -30,6 +30,8 @@ def test_block():
 
     assert_universal(x, Q, kb_literal1, kb_optimised1)
     assert_universal(x, Q, kb_literal2, kb_optimised2)
+    assert_diag(kb_literal1, kb_optimised1)
+    assert_diag(kb_literal2, kb_optimised2)
 
     with pytest.raises(ValueError):
         KroneckerBlock([[['a', 'b']]])
@@ -71,7 +73,9 @@ def test_block_diag():
 
     assert_universal(x, Q, kbd_literal1, kbd_optimised1)
     assert_universal(d, D, kbd_literal2, kbd_optimised2)
-
+    assert_diag(kbd_literal1, kbd_optimised1)
+    assert_diag(kbd_literal2, kbd_optimised2)
+    
     assert_pow_fails(kbd_optimised1)
     assert_pow(kbd_literal2, kbd_optimised2)
 
