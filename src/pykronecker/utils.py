@@ -49,7 +49,7 @@ def multiply_tensor_product(As: List[ndarray], X: ndarray) -> ndarray:
     # matrix of vector columns
     elif X.ndim == 2 and X.shape[0] == N:
 
-        out = np.zeros(X.shape)
+        out = np.zeros(X.shape, dtype=np.result_type(*As, X))
 
         for j in range(X.shape[1]):
 
@@ -90,7 +90,7 @@ def multiply_tensor_sum(As: List[ndarray], X: ndarray) -> ndarray:
     # regular tensor
     if X.shape == shape:
 
-        out = np.zeros(shape)
+        out = np.zeros(shape, dtype=np.result_type(*As, X))
 
         for i, A in enumerate(As):
             trans = list(range(1, len(As)))
@@ -102,7 +102,7 @@ def multiply_tensor_sum(As: List[ndarray], X: ndarray) -> ndarray:
     # regular vector
     elif X.squeeze().shape == (N,):
 
-        out = np.zeros(shape)
+        out = np.zeros(shape, dtype=np.result_type(*As, X))
         X_ = X.squeeze().reshape(shape, order='C')
 
         for i, A in enumerate(As):
@@ -115,12 +115,13 @@ def multiply_tensor_sum(As: List[ndarray], X: ndarray) -> ndarray:
     # matrix of vector columns
     elif X.ndim == 2 and X.shape[0] == N:
 
-        out = np.zeros(X.shape)
+        out_type = np.result_type(*As, X)
+        out = np.zeros(X.shape, dtype=out_type)
 
         for j in range(X.shape[1]):
 
             X_ = X[:, j].reshape(shape, order='C')
-            col = np.zeros(shape)
+            col = np.zeros(shape, dtype=out_type)
 
             for i, A in enumerate(As):
                 trans = list(range(1, len(As)))
@@ -166,7 +167,7 @@ def multiply_tensor_diag(A: ndarray, X: ndarray):
     # matrix of vector columns
     elif X.ndim == 2 and X.shape[0] == N:
 
-        out = np.zeros(X.shape)
+        out = np.zeros(X.shape, dtype=np.result_type(A, X))
         A_ = A.ravel(order='C')
 
         for i in range(X.shape[1]):
@@ -216,7 +217,7 @@ def kronecker_sum_literal(As: List[ndarray]) -> ndarray:
     """
 
     N = int(np.prod([A.shape[0] for A in As]))
-    out = np.zeros((N, N))
+    out = np.zeros((N, N), dtype=As[0].dtype)
 
     for i in range(len(As)):
         Ais = [np.eye(Ai.shape[0]) for Ai in As]
@@ -241,7 +242,7 @@ def vec(X: ndarray) -> ndarray:
     if X.squeeze().ndim == 1:
         return X
 
-    return X.squeeze().reshape(-1, order='C')
+    return X.squeeze().ravel(order='C')
 
 
 def ten(x: ndarray, shape: tuple = None, like: ndarray = None) -> ndarray:

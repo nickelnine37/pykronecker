@@ -93,6 +93,13 @@ class KroneckerOperator(ABC):
 
         raise NotImplementedError
 
+    # @abstractmethod
+    # def diag(self):
+    #     """
+    #     Return a vector representing the diagonal of the operator
+    #     """
+    #     raise NotImplementedError
+
     @abstractmethod
     def __repr__(self) -> str:
         """
