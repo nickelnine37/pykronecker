@@ -20,7 +20,7 @@ by treating Kronecker operators as if they are NumPy matrices. All operators sup
     * summing along axes 0, 1 or both
     * transposing
 
-using +, @, *, .sum() and .T respectively. Some further behaviours for certian operator types are implemented in the subclasses. 
+using +, @, *, .sum() and .T respectively. Some further behaviours for certain operator types are implemented in the subclasses. 
 
 """
 
@@ -36,7 +36,7 @@ class KroneckerOperator(ABC):
     tensor_shape: tuple = None          # the expected shape of tensors this operator acts on
 
     # ------------- ABSTRACT METHODS --------------
-    # These should all be defined by sublasses
+    # These should all be defined by subclasses
 
     @abstractmethod
     def __copy__(self) -> 'KroneckerOperator':
@@ -48,7 +48,7 @@ class KroneckerOperator(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def __deepcopy__(self, memodict={}) -> 'KroneckerOperator':
+    def __deepcopy__(self, memodict=None) -> 'KroneckerOperator':
         """
         Create a deep copy of a Kronecker object. This copies the data in the underlying arrays to create
         a totally independent object. This needs to be implemented by subclasses.
@@ -56,7 +56,7 @@ class KroneckerOperator(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def __pow__(self, power: numeric, modulo=None) ->  'KroneckerOperator':
+    def __pow__(self, power: numeric, modulo=None) -> 'KroneckerOperator':
         """
         Element-wise power operation. Only works for KroneckerProducts and KroneckerDiags.
         """
@@ -126,7 +126,7 @@ class KroneckerOperator(ABC):
         from pykronecker.composite import OperatorSum
 
         if not isinstance(other, KroneckerOperator):
-            raise TypeError('Konecker operators can only be added to other Kronecker operators')
+            raise TypeError('Kronecker operators can only be added to other Kronecker operators')
 
         return OperatorSum(self, other)
 
@@ -145,7 +145,7 @@ class KroneckerOperator(ABC):
     def __mul__(self, other: Union['KroneckerOperator', numeric]) -> 'KroneckerOperator':
         """
         Multiply the linear operator element-wise. As with numpy arrays, the * operation defaults to element-wise
-        (Hadamard) multiplication, not matrix multiplication. For numbers, this is a simple scaler multiple. For
+        (Hadamard) multiplication, not matrix multiplication. For numbers, this is a simple scalar multiple. For
         Kronecker objects, we can only define the behaviour efficiently for KroneckerProducts and KroneckerDiags,
         which is implemented in the respective subclass.
         """
@@ -157,14 +157,14 @@ class KroneckerOperator(ABC):
             return new
 
         elif isinstance(other, KroneckerOperator):
-            raise TypeError('Only KroneckerProducts and KroneckerDiags can be multipled together element-wise')
+            raise TypeError('Only KroneckerProducts and KroneckerDiags can be multiplied together element-wise')
 
         else:
             raise TypeError('General Kronecker operators can only be scaled by a number')
 
     def __rmul__(self, other: Union['KroneckerOperator', numeric]) -> 'KroneckerOperator':
         """
-        Hadamard and scaler multiples are commutitive
+        Hadamard and scalar multiples are commutative
         """
         return self.__mul__(other)
 
@@ -178,7 +178,7 @@ class KroneckerOperator(ABC):
     def H(self):
         """
         Return the Hermitian conjugate (conjugate transpose) of the operator. For real operators,
-        this is equivelant to the transpose.
+        this is equivalent to the transpose.
         """
         return self.conj().T
 
@@ -206,7 +206,7 @@ class KroneckerOperator(ABC):
 
     def __rmatmul__(self, other: Union['KroneckerOperator', ndarray]) -> Union['KroneckerOperator', ndarray]:
         """
-        Define reverve matrix multiplication in terms of transposes
+        Define reverse matrix multiplication in terms of transposes
         """
 
         if isinstance(other, ndarray):
@@ -247,7 +247,7 @@ class KroneckerOperator(ABC):
     def __array_ufunc__(self, method, *inputs, **kwargs) -> Union['KroneckerOperator', ndarray]:
         """
         Override the numpy implementation of matmul, so that we can also use
-        this funcion rather than just the @ operator.
+        this function rather than just the @ operator.
 
         E.g.
             KroneckerProduct(A, B, C) @ vec(X) == np.matmul(KroneckerProduct(A, B, C), vec(X))
@@ -342,4 +342,3 @@ class KroneckerOperator(ABC):
         assert all(A.shape[0] == A.shape[1] for A in As)
 
         return True
-

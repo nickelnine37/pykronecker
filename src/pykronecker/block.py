@@ -1,14 +1,13 @@
 from __future__ import annotations
 from abc import abstractmethod, ABC
-from typing import Callable, List
+from typing import Callable, List, Union
 
 import numpy as np
 from numpy import ndarray
 
 from pykronecker.base import KroneckerOperator
+from pykronecker.composite import OperatorSum
 from pykronecker.types import numeric
-
-
 
 
 class KroneckerBlockBase(KroneckerOperator, ABC):
@@ -43,10 +42,10 @@ class KroneckerBlockBase(KroneckerOperator, ABC):
     @abstractmethod
     def get_tensor_shape(self) -> tuple:
         raise NotImplementedError
-    
+
     def iter_edges(self):
         """
-        Return generator expression that iterates through the indices represesenting
+        Return generator expression that iterates through the indices representing
         the left and right boundaries of each diagonal block
         """
         return zip(self.cum_block_sizes[:-1], self.cum_block_sizes[1:])
@@ -84,7 +83,7 @@ class KroneckerBlockBase(KroneckerOperator, ABC):
         return self.factor * self.__class__(blocks=self.apply_to_blocks(lambda block: block.T, transpose=True))
 
     def conj(self) -> 'KroneckerBlockBase':
-        return np.conj(self.factor)* self.__class__(blocks=self.apply_to_blocks(lambda block: block.conj(), transpose=False))
+        return np.conj(self.factor) * self.__class__(blocks=self.apply_to_blocks(lambda block: block.conj(), transpose=False))
 
     def __pow__(self, power: numeric, modulo=None) -> 'KroneckerBlockBase':
         new = self.__class__(blocks=self.apply_to_blocks(lambda block: block ** power))
@@ -96,7 +95,7 @@ class KroneckerBlockBase(KroneckerOperator, ABC):
         new.factor = self.factor
         return new
 
-    def __deepcopy__(self, memodict={}) -> 'KroneckerBlockBase':
+    def __deepcopy__(self, memodict=None) -> 'KroneckerBlockBase':
         new = self.__class__(blocks=self.apply_to_blocks(lambda block: block.deepcopy() if isinstance(block, KroneckerOperator) else block.copy()))
         new.factor = self.factor
         return new
@@ -128,7 +127,7 @@ class KroneckerBlock(KroneckerBlockBase):
         return [self.blocks[i][i].shape[0] for i in range(len(self.blocks))]
 
     def get_tensor_shape(self) -> tuple:
-        return tuple(self.blocks[i][i].tensor_shape  if isinstance(self.blocks[i][i], KroneckerOperator) else self.blocks[i][i].shape[0] for i in range(len(self.blocks)))
+        return tuple(self.blocks[i][i].tensor_shape if isinstance(self.blocks[i][i], KroneckerOperator) else self.blocks[i][i].shape[0] for i in range(len(self.blocks)))
 
     def operate(self, other: ndarray) -> ndarray:
 
@@ -156,6 +155,30 @@ class KroneckerBlock(KroneckerBlockBase):
 
         return self.factor * np.concatenate(out, axis=0)
 
+    def __mul__(self, other: Union['KroneckerOperator', numeric]) -> KroneckerOperator:
+
+        if isinstance(other, KroneckerOperator):
+
+            self.check_operators_consistent(self, other)
+
+            if isinstance(other, KroneckerBlock):
+                new_blocks = [[self.blocks[i][j] * other.blocks[i][j] for j in range(self.n_blocks)] for i in range(self.n_blocks)]
+                return self.factor * other.factor * KroneckerBlock(new_blocks)
+
+            elif isinstance(other, KroneckerBlockDiag):
+                new_blocks = [self.blocks[i][i] * other.blocks[i] for i in range(self.n_blocks)]
+                return self.factor * other.factor * KroneckerBlockDiag(new_blocks)
+
+            elif isinstance(other, OperatorSum):
+                return other.factor * OperatorSum(self * other.A, self * other.B)
+
+            else:
+                raise TypeError('A KroneckerBlock cannot be multiplied element-wise onto this operator')
+
+        # otherwise other should be a scalar, handled in the base class
+        else:
+            return super().__mul__(other)
+
     def inv(self) -> 'KroneckerBlock':
         raise NotImplementedError
 
@@ -163,7 +186,10 @@ class KroneckerBlock(KroneckerBlockBase):
         return self.factor * np.block(self.apply_to_blocks(lambda block: block.to_array() if isinstance(block, KroneckerOperator) else block))
 
     def diag(self):
-        get_diag = lambda block: block.diag() if isinstance(block, KroneckerOperator) else np.diag(block)
+
+        def get_diag(block: KroneckerOperator | ndarray):
+            return block.diag() if isinstance(block, KroneckerOperator) else np.diag(block)
+
         return self.factor * np.concatenate([get_diag(self.blocks[i][i]) for i in range(self.n_blocks)])
 
     def __repr__(self) -> str:
@@ -213,6 +239,30 @@ class KroneckerBlockDiag(KroneckerBlockBase):
 
         else:
             raise ValueError('other must be 1 or 2d')
+
+    def __mul__(self, other: Union['KroneckerOperator', numeric]) -> KroneckerOperator:
+
+        if isinstance(other, KroneckerOperator):
+
+            self.check_operators_consistent(self, other)
+
+            if isinstance(other, KroneckerBlock):
+                new_blocks = [self.blocks[i] * other.blocks[i][i] for i in range(self.n_blocks)]
+                return self.factor * other.factor * KroneckerBlock(new_blocks)
+
+            elif isinstance(other, KroneckerBlockDiag):
+                new_blocks = [self.blocks[i] * other.blocks[i] for i in range(self.n_blocks)]
+                return self.factor * other.factor * KroneckerBlockDiag(new_blocks)
+
+            elif isinstance(other, OperatorSum):
+                return other.factor * OperatorSum(self * other.A, self * other.B)
+
+            else:
+                raise TypeError('A KroneckerBlock cannot be multiplied element-wise onto this operator')
+
+        # otherwise other should be a scalar, handled in the base class
+        else:
+            return super().__mul__(other)
 
     def inv(self) -> 'KroneckerBlockDiag':
         return self.factor ** -1 * KroneckerBlockDiag(blocks=self.apply_to_blocks(lambda block: block.inv() if isinstance(block, KroneckerOperator) else np.linalg.inv(block)))

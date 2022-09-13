@@ -8,7 +8,7 @@ from pykronecker.types import numeric
 
 """
 The classes in this file are used to create composite operators. This is the result of adding or multiplying 
-two simpler operators together. These classes never need to be created explicityly, but are implicitly 
+two simpler operators together. These classes never need to be created explicitly, but are implicitly 
 created whenever two operators are summed or multiplied. 
 
 E.g.
@@ -47,7 +47,7 @@ class CompositeOperator(KroneckerOperator, ABC):
         new.factor = self.factor
         return new    
     
-    def __deepcopy__(self, memodict={}) -> 'CompositeOperator':
+    def __deepcopy__(self, memodict=None) -> 'CompositeOperator':
         new = self.__class__(self.A.__deepcopy__(), self.B.__deepcopy__())
         new.factor = self.factor
         return new
@@ -59,7 +59,7 @@ class CompositeOperator(KroneckerOperator, ABC):
 class OperatorSum(CompositeOperator):
     """
     Used to represent a chain of Kronecker objects summed together. No need for this class to be
-    instatiated by the user. It is used mainly as an internal representation for defining the
+    instantiated by the user. It is used mainly as an internal representation for defining the
     behaviour of composite operators. The internal state of this operator is simply two operators
     A and B.
     """
@@ -96,7 +96,7 @@ class OperatorSum(CompositeOperator):
 class OperatorProduct(CompositeOperator):
     """
     Used to represent a chain of Kronecker objects matrix-multiplied together. No need for this class to be
-    instatiated by the user. It is used mainly as an internal representation for defining the
+    instantiated by the user. It is used mainly as an internal representation for defining the
     behaviour of composite operators.
     """
 
@@ -127,4 +127,3 @@ class OperatorProduct(CompositeOperator):
 
     def __repr__(self) -> str:
         return 'OperatorProduct({}, {})'.format(self.A.__repr__(), self.B.__repr__())
-

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from abc import ABC
 from functools import reduce
 from itertools import combinations
 
@@ -8,7 +9,6 @@ from numpy import ndarray
 from typing import Union, List
 from numpy.linalg import inv
 
-# import kronecker as kron
 from pykronecker.base import KroneckerOperator
 from pykronecker.composite import OperatorSum, OperatorProduct
 from pykronecker.types import numeric
@@ -16,7 +16,7 @@ from pykronecker.utils import multiply_tensor_product, multiply_tensor_sum, mult
     vec, ten
 
 
-class BasicKroneckerOperator(KroneckerOperator):
+class BasicKroneckerOperator(KroneckerOperator, ABC):
     """
     This is a superclass for the KroneckerProduct and KroneckerSum classes, which share a some
     functionality. 
@@ -24,7 +24,7 @@ class BasicKroneckerOperator(KroneckerOperator):
     
     def __init__(self, As: List[ndarray]):
         """
-        Initialise by passing in a sequence of square arrays as Numpy arrays or spmatrices
+        Initialise by passing in a sequence of square arrays as Numpy arrays
         """
 
         self.check_valid_matrices(As)
@@ -48,7 +48,7 @@ class BasicKroneckerOperator(KroneckerOperator):
         return self.factor * self.__class__([A.T for A in self.As])
 
     def conj(self) -> 'BasicKroneckerOperator':
-        return  np.conj(self.factor) * self.__class__([A.conj() for A in self.As])
+        return np.conj(self.factor) * self.__class__([A.conj() for A in self.As])
 
 
 class KroneckerProduct(BasicKroneckerOperator):
@@ -58,7 +58,7 @@ class KroneckerProduct(BasicKroneckerOperator):
 
     def __init__(self, As: List[ndarray]):
         """
-        Initialise by passing in a sequence of square arrays as Numpy arrays or spmatrices
+        Initialise by passing in a sequence of square arrays as Numpy arrays
         """
         super().__init__(As)
 
@@ -132,7 +132,7 @@ class KroneckerSum(BasicKroneckerOperator):
 
     def __init__(self, As: List[ndarray]):
         """
-        Initialise by passing in a sequence of square arrays as Numpy arrays or spmatrices
+        Initialise by passing in a sequence of square arrays as Numpy arrays
         """
         super().__init__(As)
 
@@ -239,7 +239,7 @@ class KroneckerDiag(KroneckerOperator):
         new.factor = self.factor
         return new
 
-    def __deepcopy__(self, memodict={}) -> 'KroneckerDiag':
+    def __deepcopy__(self, memodict=None) -> 'KroneckerDiag':
         new = KroneckerDiag(self.A.copy())
         new.factor = self.factor
         return new
@@ -295,7 +295,7 @@ class KroneckerIdentity(KroneckerOperator):
 
     def __init__(self, tensor_shape: tuple=None, like: KroneckerOperator=None):
         """
-        Initiaise an Identity matrix using tensor_shape parameter, or alternatively pass another operator of the same size.
+        Initialise an Identity matrix using tensor_shape parameter, or alternatively pass another operator of the same size.
         """
 
         if tensor_shape is None and like is None:
@@ -317,7 +317,7 @@ class KroneckerIdentity(KroneckerOperator):
         new.factor = self.factor
         return new
 
-    def __deepcopy__(self, memodict={}) -> 'KroneckerIdentity':
+    def __deepcopy__(self, memodict=None) -> 'KroneckerIdentity':
         new = KroneckerIdentity(like=self)
         new.factor = self.factor
         return new
