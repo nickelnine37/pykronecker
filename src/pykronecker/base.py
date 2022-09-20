@@ -6,7 +6,7 @@ import numpy as np
 from numpy import ndarray
 from typing import Union, List
 
-from pykronecker.types import numeric
+from pykronecker.utils import numeric
 
 
 """
@@ -34,6 +34,7 @@ class KroneckerOperator(ABC):
     factor: numeric = 1.0               # a scalar factor multiplying the whole operator
     shape: tuple[int, int] = (0, 0)     # full (N, N) operator shape
     tensor_shape: tuple = None          # the expected shape of tensors this operator acts on
+    dtype = None                        # the dtype of the underlying matrices (or np.result_type if they differ)
 
     # ------------- ABSTRACT METHODS --------------
     # These should all be defined by subclasses
@@ -202,7 +203,7 @@ class KroneckerOperator(ABC):
             return OperatorProduct(self, other)
 
         else:
-            raise TypeError('Objects in the matrix product must be Kronecker Operators or ndarrays')
+            raise TypeError(f'Objects in the matrix product must be Kronecker Operators or ndarrays, but this is a {type(other)}')
 
     def __rmatmul__(self, other: Union['KroneckerOperator', ndarray]) -> Union['KroneckerOperator', ndarray]:
         """

@@ -7,7 +7,7 @@ from numpy import ndarray
 
 from pykronecker.base import KroneckerOperator
 from pykronecker.composite import OperatorSum
-from pykronecker.types import numeric
+from pykronecker.utils import numeric
 
 
 class KroneckerBlockBase(KroneckerOperator, ABC):
@@ -112,6 +112,7 @@ class KroneckerBlock(KroneckerBlockBase):
                        [A31, A32, A33]]
         """
         super().__init__(blocks)
+        self.dtype = np.result_type(*[self.blocks[i][i].dtype for i in range(len(self.blocks))])
 
     def apply_to_blocks(self, function: Callable, transpose=False):
         """
@@ -132,18 +133,19 @@ class KroneckerBlock(KroneckerBlockBase):
     def operate(self, other: ndarray) -> ndarray:
 
         x = other.squeeze()
+        dtype = np.result_type(self.dtype, x)
 
         if x.shape[0] != len(self):
             raise ValueError(f'other\'s first dimension should have length {len(self)} to match the dimensions of the operator, but it has length {x.shape[0]}')
 
         if x.ndim == 1:
 
-            out = [np.zeros_like(x[n1:n2]) for n1, n2 in self.iter_edges()]
+            out = [np.zeros_like(x[n1:n2], dtype=dtype) for n1, n2 in self.iter_edges()]
             blocks = [x[n1:n2] for n1, n2 in self.iter_edges()]
 
         elif x.ndim == 2:
 
-            out = [np.zeros_like(x[n1:n2, :]) for n1, n2 in self.iter_edges()]
+            out = [np.zeros_like(x[n1:n2, :], dtype=dtype) for n1, n2 in self.iter_edges()]
             blocks = [x[n1:n2, :] for n1, n2 in self.iter_edges()]
 
         else:
@@ -211,6 +213,7 @@ class KroneckerBlockDiag(KroneckerBlockBase):
                                        [0, 0, A3]]
         """
         super().__init__(blocks)
+        self.dtype = np.result_type(*[self.blocks[i].dtype for i in range(len(self.blocks))])
 
     def apply_to_blocks(self, function: Callable, transpose=False):
         return [function(self.blocks[i]) for i in range(self.n_blocks)]
@@ -248,7 +251,7 @@ class KroneckerBlockDiag(KroneckerBlockBase):
 
             if isinstance(other, KroneckerBlock):
                 new_blocks = [self.blocks[i] * other.blocks[i][i] for i in range(self.n_blocks)]
-                return self.factor * other.factor * KroneckerBlock(new_blocks)
+                return self.factor * other.factor * KroneckerBlockDiag(new_blocks)
 
             elif isinstance(other, KroneckerBlockDiag):
                 new_blocks = [self.blocks[i] * other.blocks[i] for i in range(self.n_blocks)]
@@ -269,7 +272,7 @@ class KroneckerBlockDiag(KroneckerBlockBase):
 
     def to_array(self) -> ndarray:
 
-        out = np.zeros(self.shape)
+        out = np.zeros(self.shape, dtype=self.dtype)
 
         for block, (n1, n2) in zip(self.blocks, self.iter_edges()):
 

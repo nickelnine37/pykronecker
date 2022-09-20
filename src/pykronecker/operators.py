@@ -11,7 +11,7 @@ from numpy.linalg import inv
 
 from pykronecker.base import KroneckerOperator
 from pykronecker.composite import OperatorSum, OperatorProduct
-from pykronecker.types import numeric
+from pykronecker.utils import numeric
 from pykronecker.utils import multiply_tensor_product, multiply_tensor_sum, multiply_tensor_diag, multiply_tensor_identity, kronecker_product_literal, kronecker_sum_literal, kronecker_diag_literal, \
     vec, ten
 
@@ -32,6 +32,7 @@ class BasicKroneckerOperator(KroneckerOperator, ABC):
         self.tensor_shape = tuple(A.shape[0] for A in As)
         N = int(np.prod(self.tensor_shape))
         self.shape = (N, N)
+        self.dtype = np.result_type(*self.As)
 
     def __copy__(self) -> 'BasicKroneckerOperator':
         new = self.__class__([A for A in self.As])
@@ -214,6 +215,7 @@ class KroneckerDiag(KroneckerOperator):
         self.tensor_shape = A.shape
         N = int(np.prod(self.tensor_shape))
         self.shape = (N, N)
+        self.dtype = A.dtype
 
     def __mul__(self, other: Union['KroneckerOperator', numeric]) -> KroneckerOperator:
 
@@ -311,6 +313,8 @@ class KroneckerIdentity(KroneckerOperator):
         if like is not None:
             self.shape = like.shape
             self.tensor_shape = like.tensor_shape
+
+        self.dtype = np.dtype('float64')
 
     def __copy__(self) -> 'KroneckerIdentity':
         new = KroneckerIdentity(like=self)

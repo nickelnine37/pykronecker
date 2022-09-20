@@ -9,7 +9,7 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
 import numpy as np
 from utils import assert_universal, generate_test_data, assert_pow, assert_pow_fails, assert_self_hadamard, \
-    assert_self_hadamard_fails, assert_inv, assert_inv_fails, assert_hadamard, generate_complex_test_data, assert_diag
+    assert_self_hadamard_fails, assert_inv, assert_inv_fails, assert_hadamard, generate_complex_test_data, assert_diag, generate_mixed_test_data1, generate_mixed_test_data2
 from pykronecker import KroneckerProduct, KroneckerDiag, KroneckerSum, KroneckerIdentity
 
 
@@ -19,7 +19,7 @@ def test_operators():
 
     np.set_printoptions(precision=3, linewidth=500, threshold=500, suppress=True, edgeitems=5)
 
-    for generator in [generate_test_data, generate_complex_test_data]:
+    for generator in [generate_test_data, generate_complex_test_data, generate_mixed_test_data1, generate_mixed_test_data2]:
 
         X, Y, P, kp_literal, ks_literal, kd_literal, kp_optimised, ks_optimised, kd_optimised, ki_literal, ki_optimised = generator()
 

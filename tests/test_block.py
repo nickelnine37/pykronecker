@@ -11,14 +11,15 @@ from pykronecker.utils import vec
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
 import numpy as np
-from utils import assert_universal, generate_test_data, assert_pow, assert_pow_fails, assert_inv, assert_inv_fails, assert_diag, generate_complex_test_data
+from utils import assert_universal, generate_test_data, assert_pow, assert_pow_fails, assert_inv, assert_inv_fails, assert_diag, generate_complex_test_data, assert_hadamard, assert_self_hadamard, \
+    generate_mixed_test_data1, generate_mixed_test_data2
 
 np.set_printoptions(precision=3, linewidth=500, threshold=500, suppress=True, edgeitems=5)
 
 
 def test_block():
 
-    for generator in [generate_test_data, generate_complex_test_data]:
+    for generator in [generate_test_data, generate_complex_test_data, generate_mixed_test_data1, generate_mixed_test_data2]:
 
         X, Y, P, kp_literal, ks_literal, kd_literal, kp_optimised, ks_optimised, kd_optimised, ki_literal, ki_optimised = generator()
         x = np.concatenate([vec(X), vec(Y)])
@@ -30,10 +31,17 @@ def test_block():
         kb_literal2 = np.block([[kp_literal, kd_literal], [kd_literal, kp_literal]])
         kb_optimised2 = KroneckerBlock([[kp_optimised, kd_optimised], [kd_optimised, kp_optimised]])
 
+        kbd_literal1 = np.block([[kp_literal, np.zeros(kp_literal.shape)], [np.zeros(kp_literal.shape), ks_literal]])
+        kbd_optimised1 = KroneckerBlockDiag([kp_optimised, ks_optimised])
+
         assert_universal(x, Q, kb_literal1, kb_optimised1)
         assert_universal(x, Q, kb_literal2, kb_optimised2)
         assert_diag(kb_literal1, kb_optimised1)
         assert_diag(kb_literal2, kb_optimised2)
+
+        assert_self_hadamard(kb_literal1, kb_optimised1)
+        assert_hadamard(kb_literal1, kb_optimised1, kbd_literal1, kbd_optimised1)
+        assert_hadamard(kb_literal1, kb_optimised1, kb_literal1 + kbd_literal1, kb_optimised1 + kbd_optimised1)
 
         with pytest.raises(ValueError):
             KroneckerBlock([[['a', 'b']]])
@@ -51,10 +59,9 @@ def test_block():
         assert_inv_fails(kb_optimised2)
 
 
-
 def test_block_diag():
 
-    for generator in [generate_test_data, generate_complex_test_data]:
+    for generator in [generate_test_data, generate_complex_test_data, generate_mixed_test_data1, generate_mixed_test_data2]:
 
         X, Y, P, kp_literal, ks_literal, kd_literal, kp_optimised, ks_optimised, kd_optimised, ki_literal, ki_optimised = generator()
 
@@ -62,6 +69,9 @@ def test_block_diag():
         Q = np.concatenate([P, P], axis=0)
         d = np.concatenate([vec(X), vec(Y), np.random.randn(5)])
         D = np.concatenate([P, P,  np.random.randn(5, 5)], axis=0)
+
+        kb_literal1 = np.block([[kp_literal, kd_literal], [np.zeros(kp_literal.shape), ks_literal]])
+        kb_optimised1 = KroneckerBlock([[kp_optimised, kd_optimised], [np.zeros(kp_literal.shape), ks_optimised]])
 
         kbd_literal1 = np.block([[kp_literal, np.zeros(kp_literal.shape)], [np.zeros(kp_literal.shape), ks_literal]])
         kbd_optimised1 = KroneckerBlockDiag([kp_optimised, ks_optimised])
@@ -76,6 +86,10 @@ def test_block_diag():
         assert_universal(d, D, kbd_literal2, kbd_optimised2)
         assert_diag(kbd_literal1, kbd_optimised1)
         assert_diag(kbd_literal2, kbd_optimised2)
+
+        assert_self_hadamard(kbd_literal1, kbd_optimised1)
+        assert_hadamard(kbd_literal1, kbd_optimised1, kb_literal1, kb_optimised1)
+        assert_hadamard(kbd_literal1, kbd_optimised1, kb_literal1 + kbd_literal1, kb_optimised1 + kbd_optimised1)
 
         assert_pow_fails(kbd_optimised1)
         assert_pow(kbd_literal2, kbd_optimised2)

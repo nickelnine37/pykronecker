@@ -60,15 +60,89 @@ def generate_complex_test_data(seed: int = 0):
     N4 = 3
     K = 5
 
-    A1 = np.random.randn(N1, N1) + (1j) * np.random.randn(N1, N1)
-    A2 = np.random.randn(N2, N2) + (1j) * np.random.randn(N2, N2)
-    A3 = np.random.randn(N3, N3) + (1j) * np.random.randn(N3, N3)
-    A4 = np.random.randn(N4, N4) + (1j) * np.random.randn(N4, N4)
-    D = np.random.randn(N1, N2, N3, N4) + (1j) * np.random.randn(N1, N2, N3, N4)
+    A1 = np.random.randn(N1, N1) + 1j * np.random.randn(N1, N1)
+    A2 = np.random.randn(N2, N2) + 1j * np.random.randn(N2, N2)
+    A3 = np.random.randn(N3, N3) + 1j * np.random.randn(N3, N3)
+    A4 = np.random.randn(N4, N4) + 1j * np.random.randn(N4, N4)
+    D = np.random.randn(N1, N2, N3, N4) + 1j * np.random.randn(N1, N2, N3, N4)
 
-    X = np.random.randn(N1, N2, N3, N4) + (1j) * np.random.randn(N1, N2, N3, N4)
-    Y = np.random.randn(N1, N2, N3, N4) + (1j) * np.random.randn(N1, N2, N3, N4)
-    Q = np.random.randn(N1 * N2 * N3 * N4, K) + (1j) * np.random.randn(N1 * N2 * N3 * N4, K)
+    X = np.random.randn(N1, N2, N3, N4) + 1j * np.random.randn(N1, N2, N3, N4)
+    Y = np.random.randn(N1, N2, N3, N4) + 1j * np.random.randn(N1, N2, N3, N4)
+    Q = np.random.randn(N1 * N2 * N3 * N4, K) + 1j * np.random.randn(N1 * N2 * N3 * N4, K)
+
+    # create actual array structures
+    kp_literal = kronecker_product_literal([A1, A2, A3, A4])
+    ks_literal = kronecker_sum_literal([A1, A2, A3, A4])
+    kd_literal = kronecker_diag_literal(D)
+    ki_literal = np.eye(N1 * N2 * N3 * N4)
+
+    kp_optimised = KroneckerProduct([A1, A2, A3, A4])
+    ks_optimised = KroneckerSum([A1, A2, A3, A4])
+    kd_optimised = KroneckerDiag(D)
+    ki_optimised = KroneckerIdentity(tensor_shape=(N1, N2, N3, N4))
+
+    return X, Y, Q, kp_literal, ks_literal, kd_literal, kp_optimised, ks_optimised, kd_optimised, ki_literal, ki_optimised
+
+
+def generate_mixed_test_data1(seed: int = 0):
+    """
+    Generate random data for testing purposes
+    """
+
+    np.random.seed(seed)
+
+    N1 = 6
+    N2 = 5
+    N3 = 4
+    N4 = 3
+    K = 5
+
+    A1 = np.random.randn(N1, N1) + 1j * np.random.randn(N1, N1)
+    A2 = np.random.randn(N2, N2) + 1j * np.random.randn(N2, N2)
+    A3 = np.random.randn(N3, N3) + 1j * np.random.randn(N3, N3)
+    A4 = np.random.randn(N4, N4) + 1j * np.random.randn(N4, N4)
+    D = np.random.randn(N1, N2, N3, N4) + 1j * np.random.randn(N1, N2, N3, N4)
+
+    X = np.random.randn(N1, N2, N3, N4)
+    Y = np.random.randn(N1, N2, N3, N4)
+    Q = np.random.randn(N1 * N2 * N3 * N4, K)
+
+    # create actual array structures
+    kp_literal = kronecker_product_literal([A1, A2, A3, A4])
+    ks_literal = kronecker_sum_literal([A1, A2, A3, A4])
+    kd_literal = kronecker_diag_literal(D)
+    ki_literal = np.eye(N1 * N2 * N3 * N4)
+
+    kp_optimised = KroneckerProduct([A1, A2, A3, A4])
+    ks_optimised = KroneckerSum([A1, A2, A3, A4])
+    kd_optimised = KroneckerDiag(D)
+    ki_optimised = KroneckerIdentity(tensor_shape=(N1, N2, N3, N4))
+
+    return X, Y, Q, kp_literal, ks_literal, kd_literal, kp_optimised, ks_optimised, kd_optimised, ki_literal, ki_optimised
+
+
+def generate_mixed_test_data2(seed: int = 0):
+    """
+    Generate random data for testing purposes
+    """
+
+    np.random.seed(seed)
+
+    N1 = 6
+    N2 = 5
+    N3 = 4
+    N4 = 3
+    K = 5
+
+    A1 = np.random.randn(N1, N1)
+    A2 = np.random.randn(N2, N2)
+    A3 = np.random.randn(N3, N3)
+    A4 = np.random.randn(N4, N4)
+    D = np.random.randn(N1, N2, N3, N4)
+
+    X = np.random.randn(N1, N2, N3, N4) + 1j * np.random.randn(N1, N2, N3, N4)
+    Y = np.random.randn(N1, N2, N3, N4) + 1j * np.random.randn(N1, N2, N3, N4)
+    Q = np.random.randn(N1 * N2 * N3 * N4, K) + 1j * np.random.randn(N1 * N2 * N3 * N4, K)
 
     # create actual array structures
     kp_literal = kronecker_product_literal([A1, A2, A3, A4])
@@ -173,7 +247,7 @@ def assert_scalar_multiply(literal: ndarray, optimised: KroneckerOperator):
     Test scalar multiply operations with ints, floats, np.floats and comlpex numbers
     """
 
-    for factor in [-1, 0, np.random.normal(), np.float64(np.random.normal()), np.random.normal() + (1j) * np.random.normal()]:
+    for factor in [-1, 0, np.random.normal(), np.float64(np.random.normal()), np.random.normal() + 1j * np.random.normal()]:
         assert np.allclose(factor * literal, (factor * optimised).to_array())
         assert np.allclose(literal * factor, (optimised * factor).to_array())
         assert np.allclose(np.multiply(factor, literal), np.multiply(factor, optimised).to_array())

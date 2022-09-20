@@ -9,14 +9,14 @@ from pykronecker import KroneckerProduct, KroneckerDiag
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 import pytest
 
-from utils import assert_universal, generate_test_data, generate_complex_test_data, assert_diag, assert_inv
+from utils import assert_universal, generate_test_data, generate_complex_test_data, assert_diag, assert_inv, generate_mixed_test_data1, generate_mixed_test_data2
 
 np.set_printoptions(precision=3, linewidth=500, threshold=500, suppress=True, edgeitems=5)
 
 
 def test_sum():
 
-    for generator in [generate_test_data, generate_complex_test_data]:
+    for generator in [generate_test_data, generate_complex_test_data, generate_mixed_test_data1, generate_mixed_test_data2]:
 
         X, Y, P, kp_literal, ks_literal, kd_literal, kp_optimised, ks_optimised, kd_optimised, ki_literal, ki_optimised = generator()
 
@@ -43,7 +43,7 @@ def test_sum():
 
 def test_product():
 
-    for generator in [generate_test_data, generate_complex_test_data]:
+    for generator in [generate_test_data, generate_complex_test_data, generate_mixed_test_data1, generate_mixed_test_data2]:
 
         X, Y, P, kp_literal, ks_literal, kd_literal, kp_optimised, ks_optimised, kd_optimised, ki_literal, ki_optimised = generator()
 

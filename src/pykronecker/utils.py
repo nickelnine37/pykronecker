@@ -3,6 +3,10 @@ import numpy as np
 from numpy import ndarray, diag
 from typing import List
 from functools import reduce
+from typing import Union
+
+
+numeric = Union[int, float, complex, np.number]
 
 
 def multiply_tensor_product(As: List[ndarray], X: ndarray) -> ndarray:

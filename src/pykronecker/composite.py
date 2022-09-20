@@ -4,7 +4,7 @@ from abc import ABC
 import numpy as np
 from numpy import ndarray
 from pykronecker.base import KroneckerOperator
-from pykronecker.types import numeric
+from pykronecker.utils import numeric
 
 """
 The classes in this file are used to create composite operators. This is the result of adding or multiplying 
@@ -41,6 +41,7 @@ class CompositeOperator(KroneckerOperator, ABC):
         self.B = B
         self.shape = self.A.shape
         self.tensor_shape = A.tensor_shape
+        self.dtype = np.result_type(A.dtype, B.dtype)
     
     def __copy__(self) -> 'CompositeOperator':
         new = self.__class__(self.A.__copy__(), self.B.__copy__())
