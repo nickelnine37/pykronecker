@@ -59,7 +59,7 @@ class KroneckerBlockBase(KroneckerOperator, ABC):
         ndim = np.asarray(blocks, dtype='object').ndim
 
         if ndim == 1:
-            assert all(isinstance(block, (KroneckerOperator, ndarray)) for block in blocks)
+            assert all(hasattr(block, 'shape') for block in blocks)
             assert all(block.shape[0] == block.shape[1] for block in blocks)
 
         elif ndim == 2:
@@ -70,7 +70,7 @@ class KroneckerBlockBase(KroneckerOperator, ABC):
 
             for i in range(len(blocks)):
                 for j in range(len(blocks)):
-                    assert isinstance(blocks[i][j], (KroneckerOperator, ndarray))
+                    assert hasattr(blocks[i][j], 'shape')
                     assert blocks[i][j].shape == (shapes[i], shapes[j])
 
         else:

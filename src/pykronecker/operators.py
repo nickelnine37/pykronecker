@@ -208,7 +208,7 @@ class KroneckerDiag(KroneckerOperator):
         Initialise with a tensor A of shape (Nn, ..., N1)
         """
 
-        assert isinstance(A, ndarray)
+        # assert isinstance(A, ndarray)
         assert A.ndim > 1, 'The operator diagonal A should be in tensor format, but it is in vector format'
 
         self.A = A
@@ -306,9 +306,12 @@ class KroneckerIdentity(KroneckerOperator):
         if tensor_shape is not None:
 
             if isinstance(tensor_shape, (tuple, list, ndarray)):
-                self.tensor_shape = tensor_shape
+                self.tensor_shape = tuple(tensor_shape)
                 N = int(np.prod(tensor_shape))
                 self.shape = (N, N)
+
+            else:
+                raise ValueError(f'Cannot instantiate KroneckerIdentity with tensor_shape={tensor_shape}: invalid type ({type(tensor_shape)})')
 
         if like is not None:
             self.shape = like.shape
