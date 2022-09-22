@@ -14,17 +14,27 @@ If *A* has size (*n* x *n*), and *B* has size (*m* x *m*), then their kronecker 
 
 # Installation
 
+Installation on Windows, OSX and Linux can be performed by running
+
 ```
 pip3 install pykronecker
 ```
 
+This will install the vanilla version of the library, with support for NumPy arrays only. Linux users have the additional option of installing PyKronecker with [Jax](https://jax.readthedocs.io/en/latest/index.html) support. The benefit of this is significantly faster runtimes, even when working with NumPy arrays only, due to Jax's JIT complier. This can be installed by running
+
+```
+pip3 install pykronecker[jax]
+```
+
+For Linux users with an Nvidia graphics card, PyKronecker is also compatible with the GPU and TPU version of Jax. However, since this relies on CUDA and cuDNN, it is recommended to follow the instructions [here](https://github.com/google/jax#installation) to install Jax first. 
+
 # Usage
 
-We create instances of a `KroneckerOperator` class, which can be broadly treated as if it is a square numpy array. These objects are designed to be used with the `@` syntax for matrix multiplication. 
+The concept of this library is to create instances of a `KroneckerOperator` class, which can be broadly treated as if it is a square numpy array. These objects are designed to be used with the `@` syntax for matrix multiplication. 
 
 ## Basic operators
 
-Create a `KroneckerProduct` from two or more square numpy arrays. These can be real or complex valued. 
+Create a `KroneckerProduct` from two or more square NumPy/Jax arrays. These can be real or complex valued. 
 
 ```python
 import numpy as np
@@ -55,12 +65,12 @@ D = KroneckerSum([A, B])
 print(D @ x)
 ```
 
-`KroneckerDiag` provides support for diagonal matrices.
+`KroneckerDiag` provides support for diagonal matrices, and can be created by passing a tensor of the appropriate size. This creates, in effect, a matrix with the vectorized tensor along the diagonal. 
 
 ```python
 from pykronecker import KroneckerDiag
 
-E = KroneckerDiag(np.random.normal(size=5 * 6))
+E = KroneckerDiag(np.random.normal(size=(5, 6)))
 print(E @ x)
 ```
 
