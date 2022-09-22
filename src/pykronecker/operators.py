@@ -12,8 +12,8 @@ from numpy.linalg import inv
 from pykronecker.base import KroneckerOperator
 from pykronecker.composite import OperatorSum, OperatorProduct
 from pykronecker.utils import numeric
-from pykronecker.utils import multiply_tensor_product, multiply_tensor_sum, multiply_tensor_diag, multiply_tensor_identity, kronecker_product_literal, kronecker_sum_literal, kronecker_diag_literal, \
-    vec, ten
+from pykronecker.utils import kronecker_product_literal, kronecker_sum_literal, kronecker_diag_literal, vec, ten
+from pykronecker.fast_math import multiply_tensor_product, multiply_tensor_sum, multiply_tensor_diag, multiply_tensor_identity
 
 
 class BasicKroneckerOperator(KroneckerOperator, ABC):
@@ -208,7 +208,7 @@ class KroneckerDiag(KroneckerOperator):
         Initialise with a tensor A of shape (Nn, ..., N1)
         """
 
-        assert isinstance(A, ndarray)
+        # assert isinstance(A, ndarray)
         assert A.ndim > 1, 'The operator diagonal A should be in tensor format, but it is in vector format'
 
         self.A = A
@@ -306,9 +306,12 @@ class KroneckerIdentity(KroneckerOperator):
         if tensor_shape is not None:
 
             if isinstance(tensor_shape, (tuple, list, ndarray)):
-                self.tensor_shape = tensor_shape
+                self.tensor_shape = tuple(tensor_shape)
                 N = int(np.prod(tensor_shape))
                 self.shape = (N, N)
+
+            else:
+                raise ValueError(f'Cannot instantiate KroneckerIdentity with tensor_shape={tensor_shape}: invalid type ({type(tensor_shape)})')
 
         if like is not None:
             self.shape = like.shape

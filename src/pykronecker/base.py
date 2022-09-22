@@ -191,16 +191,16 @@ class KroneckerOperator(ABC):
         from pykronecker.composite import OperatorProduct
         from pykronecker.operators import KroneckerIdentity
 
-        if isinstance(other, ndarray):
-            return self.operate(other)
-
-        elif isinstance(other, KroneckerIdentity):
+        if isinstance(other, KroneckerIdentity):
             new = self.copy()
             new.factor *= other.factor
             return new
 
         elif isinstance(other, KroneckerOperator):
             return OperatorProduct(self, other)
+
+        elif hasattr(other, 'shape'):
+            return self.operate(other)
 
         else:
             raise TypeError(f'Objects in the matrix product must be Kronecker Operators or ndarrays, but this is a {type(other)}')
@@ -210,7 +210,9 @@ class KroneckerOperator(ABC):
         Define reverse matrix multiplication in terms of transposes
         """
 
-        if isinstance(other, ndarray):
+        # we should never get KroneckerOperators here, as it will be handled by __matmul__
+
+        if hasattr(other, 'shape'):  # this means it's array-like
 
             # we have a left-sided tensor multiplication
             if int(np.prod(other.shape)) == self.shape[0]:
@@ -220,9 +222,8 @@ class KroneckerOperator(ABC):
             else:
                 return (self.T @ other.T).T
 
-        # we should never get KroneckerOperators here, as it will be handled by __matmul__
         else:
-            raise TypeError('Objects in the matrix product must be Kronecker Operators or ndarrays')
+            raise TypeError('Objects in the matrix product must be Kronecker Operators or arrays')
 
     def __pos__(self) -> 'KroneckerOperator':
         """
@@ -280,16 +281,6 @@ class KroneckerOperator(ABC):
         else:
             raise NotImplementedError
 
-    def quadratic_form(self, X: ndarray) -> float:
-        """
-        Compute the quadratic form vec(X).T @ self @ vec(X)
-        """
-
-        if not isinstance(X, ndarray):
-            raise TypeError
-
-        return (X * (self @ X)).sum()
-
     def sum(self, axis: int | None=None) -> ndarray | float:
         """
         Sum the operator along one axis as if it is a matrix. Or None for total sum.
@@ -298,7 +289,7 @@ class KroneckerOperator(ABC):
         ones = np.ones(self.shape[0])
 
         if axis is None:
-            return self.quadratic_form(ones)
+            return ones @ self @ ones
 
         elif axis == 1 or axis == -1:
             return self @ ones
