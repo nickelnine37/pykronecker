@@ -12,8 +12,8 @@ from numpy.linalg import inv
 from pykronecker.base import KroneckerOperator
 from pykronecker.composite import OperatorSum, OperatorProduct
 from pykronecker.utils import numeric
-from pykronecker.utils import multiply_tensor_product, multiply_tensor_sum, multiply_tensor_diag, multiply_tensor_identity, kronecker_product_literal, kronecker_sum_literal, kronecker_diag_literal, \
-    vec, ten
+from pykronecker.utils import kronecker_product_literal, kronecker_sum_literal, kronecker_diag_literal, vec, ten
+from pykronecker.fast_math import multiply_tensor_product, multiply_tensor_sum, multiply_tensor_diag, multiply_tensor_identity
 
 
 class BasicKroneckerOperator(KroneckerOperator, ABC):

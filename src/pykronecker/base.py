@@ -191,9 +191,6 @@ class KroneckerOperator(ABC):
         from pykronecker.composite import OperatorProduct
         from pykronecker.operators import KroneckerIdentity
 
-        # if isinstance(other, ndarray):
-        #     return self.operate(other)
-
         if isinstance(other, KroneckerIdentity):
             new = self.copy()
             new.factor *= other.factor
@@ -202,10 +199,11 @@ class KroneckerOperator(ABC):
         elif isinstance(other, KroneckerOperator):
             return OperatorProduct(self, other)
 
-        return self.operate(other)
+        elif hasattr(other, 'shape'):
+            return self.operate(other)
 
-        # else:
-        #     raise TypeError(f'Objects in the matrix product must be Kronecker Operators or ndarrays, but this is a {type(other)}')
+        else:
+            raise TypeError(f'Objects in the matrix product must be Kronecker Operators or ndarrays, but this is a {type(other)}')
 
     def __rmatmul__(self, other: Union['KroneckerOperator', ndarray]) -> Union['KroneckerOperator', ndarray]:
         """
