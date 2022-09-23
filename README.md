@@ -2,15 +2,13 @@
 
 ![Tests](https://github.com/nickelnine37/pykronecker/actions/workflows/tests.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/nickelnine37/pykronecker/badge.svg)](https://coveralls.io/github/nickelnine37/pykronecker)
+[![Documentation Status](https://readthedocs.org/projects/pykronecker/badge/?version=latest)](https://pykronecker.readthedocs.io/en/latest/?badge=latest)
+
+Check out the full documentation and install instructions [here](https://pykronecker.readthedocs.io/en/latest/) :)
 
 # Overview
 
-This library contains tools for performing efficient matrix operations with [Kronecker products](https://en.wikipedia.org/wiki/Kronecker_product). The Kronecker product between two square matrices *A* and *B* is constructed as follows. 
-
-![Math](https://raw.githubusercontent.com/nickelnine37/pykronecker/main/assets/kronecker_product.png)
-
-If *A* has size (*n* x *n*), and *B* has size (*m* x *m*), then their kronecker product has size (*mn* x *mn*). Furthermore, the result of taking the Kronecker product of three matrices *A*, *B* and *C*, where *C* has shape (*p* x *p*), is a matrix of shape (*nmp* x *nmp*) and so on. The aim of this package is to efficiently caluclate matrix-vector multiplications in this expanded space without ever needing to create or operate with these potentially vast matrices directly. 
-
+PyKronecker is a library for manipulating matrices which have a [Kronecker product](https://en.wikipedia.org/wiki/Kronecker_product) structure. Systems involving Kronecker products arise in many areas of applied mathematics and statistics. The aim of this library is to provide a clean interface for dealing with such systems, combining lazy evaluation and algebraic tricks to deliver large savings in terms of both memory and execution time. 
 
 # Installation
 
@@ -34,6 +32,8 @@ The concept of this library is to create instances of a `KroneckerOperator` clas
 
 ## Basic operators
 
+### KroneckerProduct
+
 Create a `KroneckerProduct` from two or more square NumPy/Jax arrays. These can be real or complex valued. 
 
 ```python
@@ -54,16 +54,17 @@ print(C @ x)
 print(C @ X)
 ```
 
-A `KronekerSum` can be created and used in much the same way. The Kronecker sum of two square matrices *A* and *B* is defined as folows.
+### KroneckerSum
 
-![Math](https://raw.githubusercontent.com/nickelnine37/pykronecker/main/assets/kronecker_sum.png)
-
+A `KronekerSum` can be created and used in much the same way.
 ```python
 from pykronecker import KroneckerSum
 
 D = KroneckerSum([A, B])
 print(D @ x)
 ```
+
+### KroneckerDiag
 
 `KroneckerDiag` provides support for diagonal matrices, and can be created by passing a tensor of the appropriate size. This creates, in effect, a matrix with the vectorized tensor along the diagonal. 
 
@@ -73,6 +74,8 @@ from pykronecker import KroneckerDiag
 E = KroneckerDiag(np.random.normal(size=(5, 6)))
 print(E @ x)
 ```
+
+### KroneckerIdentity
 
 Finally, `KroneckerIdentity` creates the identity matrix, which can be instantiated by passing another operator of the same size, or the shape of tensors it should act on. 
 
