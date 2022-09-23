@@ -10,9 +10,9 @@ from pykronecker.utils import numeric
 
 
 """
-The class in this file is a base class for all Kronecker operators. Kronecker operators represent large matrices in a
-compact form, and perform all multiplications onto vectors lazily and efficiently. Composite operators can be created
-by treating Kronecker operators as if they are NumPy matrices. All operators support:
+The class in this file is a base class for all Kronecker operators.md. Kronecker operators.md represent large matrices in a
+compact form, and perform all multiplications onto vectors lazily and efficiently. Composite operators.md can be created
+by treating Kronecker operators.md as if they are NumPy matrices. All operators.md support:
 
     * addition
     * matrix multiplication
@@ -27,7 +27,7 @@ using +, @, *, .sum() and .T respectively. Some further behaviours for certain o
 
 class KroneckerOperator(ABC):
     """
-    Base class defining the behaviour of Kronecker-type operators. It should not be instantiated directly.
+    Base class defining the behaviour of Kronecker-type operators.md. It should not be instantiated directly.
     """
 
     __array_priority__ = 10             # increase priority of class, so it takes precedence when mixing matrix multiplications with ndarrays
@@ -127,7 +127,7 @@ class KroneckerOperator(ABC):
         from pykronecker.composite import OperatorSum
 
         if not isinstance(other, KroneckerOperator):
-            raise TypeError('Kronecker operators can only be added to other Kronecker operators')
+            raise TypeError('Kronecker operators.md can only be added to other Kronecker operators.md')
 
         return OperatorSum(self, other)
 
@@ -161,7 +161,7 @@ class KroneckerOperator(ABC):
             raise TypeError('Only KroneckerProducts and KroneckerDiags can be multiplied together element-wise')
 
         else:
-            raise TypeError('General Kronecker operators can only be scaled by a number')
+            raise TypeError('General Kronecker operators.md can only be scaled by a number')
 
     def __rmul__(self, other: Union['KroneckerOperator', numeric]) -> 'KroneckerOperator':
         """
@@ -178,7 +178,7 @@ class KroneckerOperator(ABC):
     @property
     def H(self):
         """
-        Return the Hermitian conjugate (conjugate transpose) of the operator. For real operators,
+        Return the Hermitian conjugate (conjugate transpose) of the operator. For real operators.md,
         this is equivalent to the transpose.
         """
         return self.conj().T
@@ -315,9 +315,9 @@ class KroneckerOperator(ABC):
         Check whether two KroneckerOperators are mutually compatible. I.e, check that they have the same shape.
         """
 
-        assert all(isinstance(C, KroneckerOperator) for C in [A, B]), f'All operators in this chain must be consistent, but they have types {type(A)} and {type(B)} respectively'
-        assert A.shape == B.shape, f'All operators in this chain should have the same shape, but they have shapes {A.shape} and {B.shape} respectively'
-        assert A.tensor_shape == B.tensor_shape, f'All operators in this chain should act on tensors of the same shape, but they act on {A.tensor_shape} and {B.tensor_shape} respectively'
+        assert all(isinstance(C, KroneckerOperator) for C in [A, B]), f'All operators.md in this chain must be consistent, but they have types {type(A)} and {type(B)} respectively'
+        assert A.shape == B.shape, f'All operators.md in this chain should have the same shape, but they have shapes {A.shape} and {B.shape} respectively'
+        assert A.tensor_shape == B.tensor_shape, f'All operators.md in this chain should act on tensors of the same shape, but they act on {A.tensor_shape} and {B.tensor_shape} respectively'
 
         return True
 

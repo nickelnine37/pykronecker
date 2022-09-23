@@ -7,9 +7,9 @@ from pykronecker.base import KroneckerOperator
 from pykronecker.utils import numeric
 
 """
-The classes in this file are used to create composite operators. This is the result of adding or multiplying 
-two simpler operators together. These classes never need to be created explicitly, but are implicitly 
-created whenever two operators are summed or multiplied. 
+The classes in this file are used to create composite operators.md. This is the result of adding or multiplying 
+two simpler operators.md together. These classes never need to be created explicitly, but are implicitly 
+created whenever two operators.md are summed or multiplied. 
 
 E.g.
 
@@ -22,18 +22,18 @@ E.g.
 >>> C2 = A @ B
 >>> assert isinstance(C1, OperatorProduct)
 
-This abstraction can be used indefinitely to create higher and higher order composite operators. 
+This abstraction can be used indefinitely to create higher and higher order composite operators.md. 
 """
 
 
 class CompositeOperator(KroneckerOperator, ABC):
     """
-    This is an abstract class grouping together the proceeding two composite operators.
+    This is an abstract class grouping together the proceeding two composite operators.md.
     """
 
     def __init__(self, A: KroneckerOperator, B: KroneckerOperator):
         """
-        Initialise a general composite operator takes two consistent operators A and B
+        Initialise a general composite operator takes two consistent operators.md A and B
         """
 
         self.check_operators_consistent(A, B)
@@ -61,7 +61,7 @@ class OperatorSum(CompositeOperator):
     """
     Used to represent a chain of Kronecker objects summed together. No need for this class to be
     instantiated by the user. It is used mainly as an internal representation for defining the
-    behaviour of composite operators. The internal state of this operator is simply two operators
+    behaviour of composite operators.md. The internal state of this operator is simply two operators.md
     A and B.
     """
 
@@ -98,7 +98,7 @@ class OperatorProduct(CompositeOperator):
     """
     Used to represent a chain of Kronecker objects matrix-multiplied together. No need for this class to be
     instantiated by the user. It is used mainly as an internal representation for defining the
-    behaviour of composite operators.
+    behaviour of composite operators.md.
     """
 
     def __pow__(self, power: numeric, modulo=None) -> 'KroneckerOperator':

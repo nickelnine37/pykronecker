@@ -1,0 +1,39 @@
+site_name: PyKronecker
+
+#nav:
+#    - Home:
+#        - Quickstart: index.md
+#        - Installation: install.md
+#    - Example Applications: about.md
+#    - Developers: about.md
+#    - 'User Guide':
+
+nav:
+    - Overview: index.md
+    - User Guide:
+        - Installation: install.md
+        - Getting Started:
+              - Basic Operators: examples.md
+              - Deriving New Operators: examples.md
+              - Block Operators: examples.md
+              - Other Features: examples.md
+        - Accelleration with JAX: jax.md
+        - API Reference:
+              - KroneckerOperator: about.md
+              - KroneckerProduct: about.md
+              - KroneckerSum: about.md
+              - KroneckerDiag: about.md
+              - KroneckerIdentity: about.md
+              - KroneckerBlock: about.md
+              - KroneckerDiag: about.md
+
+        - Examples: examples.md
+        - Developers: about.md
+
+theme: readthedocs
+
+extra_javascript:
+    - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML
+
+markdown_extensions:
+    - mdx_math

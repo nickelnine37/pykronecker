@@ -206,7 +206,7 @@ class KroneckerBlockDiag(KroneckerBlockBase):
 
     def __init__(self, blocks: list):
         """
-        Create a diagonal block operator. Items in the block can be arrays or operators.
+        Create a diagonal block operator. Items in the block can be arrays or operators.md.
 
         E.g. blocks = [A1, A2, A3] -> [[A1, 0, 0]
                                        [0, A2, 0]
