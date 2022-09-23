@@ -1,5 +1,10 @@
 ![Logo](https://raw.githubusercontent.com/nickelnine37/pykronecker/main/assets/logo.png)
 
+![Tests](https://github.com/nickelnine37/pykronecker/actions/workflows/tests.yml/badge.svg)
+[![Coverage Status](https://coveralls.io/repos/github/nickelnine37/pykronecker/badge.svg)](https://coveralls.io/github/nickelnine37/pykronecker)
+
+[GitHub](https://github.com/nickelnine37/pykronecker) \(\cdot\) [PyPi](https://pypi.org/project/pykronecker/) \(\cdot\) [libraries.io](https://libraries.io/pypi/pykronecker)
+
 PyKronecker is a library for manipulating matrices which have a [Kronecker product](https://en.wikipedia.org/wiki/Kronecker_product) structure.  Systems involving Kronecker products arise in many areas of applied mathematics and statistics. The aim of this library is to provide a clean interface for dealing with such systems, combining lazy evaluation and algebraic tricks to deliver large savings in terms of both memory and execution time. 
 
 ## Quickstart

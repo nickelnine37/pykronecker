@@ -1,34 +1,26 @@
 site_name: PyKronecker
 
-#nav:
-#    - Home:
-#        - Quickstart: index.md
-#        - Installation: install.md
-#    - Example Applications: about.md
-#    - Developers: about.md
-#    - 'User Guide':
-
 nav:
     - Overview: index.md
     - User Guide:
         - Installation: install.md
         - Getting Started:
-              - Basic Operators: examples.md
-              - Deriving New Operators: examples.md
-              - Block Operators: examples.md
-              - Other Features: examples.md
-        - Accelleration with JAX: jax.md
-        - API Reference:
-              - KroneckerOperator: about.md
-              - KroneckerProduct: about.md
-              - KroneckerSum: about.md
-              - KroneckerDiag: about.md
-              - KroneckerIdentity: about.md
-              - KroneckerBlock: about.md
-              - KroneckerDiag: about.md
+              - Basic operators: getting_started/operators.md
+              - Deriving new operators: getting_started/composite.md
+              - Block operators: getting_started/block.md
+              - Other features: getting_started/features.md
+        - Acceleration with JAX: jax.md
+#        - API Reference:
+#              - KroneckerOperator: api/kroneckeroperator.md
+#              - KroneckerProduct: api/kroneckerproduct.md
+#              - KroneckerSum: api/kroneckersum.md
+#              - KroneckerDiag: api/kroneckerdiag.md
+#              - KroneckerIdentity: api/kroneckeridentity.md
+#              - KroneckerBlock: api/kroneckerblock.md
+#              - KroneckerBlockDiag: api/kroneckerblockdiag.md
 
-        - Examples: examples.md
-        - Developers: about.md
+#        - Examples: examples.md
+#        - Developers: about.md
 
 theme: readthedocs
 

@@ -1,6 +1,6 @@
 # Installing PyKronecker
 
-PyKronecker can be installed on Windows, OSX and Linux by running
+PyKronecker is available for Python >= 3.7, and can be installed on Windows, OSX and Linux by running
 
 ```bash
 pip3 install pykronecker
@@ -18,4 +18,4 @@ For Linux users with an Nvidia graphics card, PyKronecker is also compatible wit
 
 The figure below shows the compute time for multiplying a `KroneckerProduct`, `KroneckerSum` and `KroneckerDiag` onto a tensor of shape `(100, 120, 140)` using NumPy arrays only, NumPy arrays with the Jax JIT compiler, and Jax arrays on an Nvidia 1050Ti GPU.   
 
-![](https://upload.wikimedia.org/wikipedia/commons/a/a0/Svg_example1.svg)
+![](https://raw.githubusercontent.com/nickelnine37/pykronecker/main/docs/img/test.svg)
