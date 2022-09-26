@@ -11,7 +11,7 @@ PyKronecker provides four basic operators, which are all subclasses of the [`Kro
 
 ## KroneckerProduct
 
-The [`KroneckerProduct`](../api/kroneckerproduct) class is used to represent the Kronecker product of a chain of square matrices \(\mathbf{A}^{(i)}\). 
+The [`KroneckerProduct`](../../api/kroneckerproduct) class is used to represent the Kronecker product of a chain of square matrices \(\mathbf{A}^{(i)}\). 
 $$
 \mathbf{A} = \mathbf{A}^{(1)} \otimes \mathbf{A}^{(2)} \otimes \;\dots \; \otimes \mathbf{A}^{(n)} = \bigotimes_{i=1}^n \mathbf{A}^{(i)}
 $$
@@ -27,12 +27,12 @@ As = [np.random.normal(size=(Ni, Ni)) for Ni in Ns]
 KP = KroneckerProduct(As)
 ```
 
-This object `A` can now operate on either:
+This object `KP` can now operate on either:
 
 * vectors of shape `(30 * 40 * 50)`, or
 * tensors of shape `(30, 40, 50)`
 
-The resultant shape after `A` operates on either of these objects will be of the same shape. 
+The resultant shape after `KP` operates on either of these objects will be of the same shape. 
 
 ```python
 x = np.random.normal(size=(30 * 40 * 50))
@@ -48,7 +48,7 @@ Due to how this operation is handled under the hood, it is slightly for efficien
 
 ## KroneckerSum
 
-The [`KroneckerSum`](../api/kroneckersum) class is used to represent the Kronecker sum of a chain of square matrices \(\mathbf{A}^{(i)}\). 
+The [`KroneckerSum`](../../api/kroneckersum) class is used to represent the Kronecker sum of a chain of square matrices \(\mathbf{A}^{(i)}\). 
 $$
 \begin{align}
 \mathbf{A} &= \mathbf{A}^{(1)} \oplus \mathbf{A}^{(2)} \oplus \;\dots \; \oplus \mathbf{A}^{(n)} \\[0.2cm]
@@ -56,7 +56,7 @@ $$
 &= \bigoplus_{i=1}^n \mathbf{A}^{(i)}
 \end{align}
 $$
-Just as with the [`KroneckerProduct`](../api/kroneckerproduct) class, it is instantiated by passing a sequence of square arrays. 
+Just as with the [`KroneckerProduct`](../../api/kroneckerproduct) class, it is instantiated by passing a sequence of square arrays. 
 
 ```python
 from pykronecker import KroneckerSum
@@ -64,7 +64,7 @@ from pykronecker import KroneckerSum
 KS = KroneckerSum(As)
 ```
 
-Again, it `A` can now operate on tensors and vectors just as with [`KroneckerProduct`](../api/kroneckerproduct)s. 
+Again, `KS` can now operate on tensors and vectors just as with [`KroneckerProduct`](../../api/kroneckerproduct)s. 
 
 ```python
 assert (KS @ x).shape == (30 * 40 * 50, )
@@ -75,7 +75,7 @@ assert (KS @ X).shape == (30, 40, 50)
 
 ## KroneckerDiag
 
-The [`KroneckerDiag`](../api/kroneckerdiag) class is used to represent diagonal operators, where the diagonal is a tensor which has been vectorised in *row major* order. 
+The [`KroneckerDiag`](../../api/kroneckerdiag) class is used to represent diagonal operators, where the diagonal is a tensor which has been vectorised in *row major* order. 
 $$
 \mathbf{A} = \text{diag}\big( \text{vec}_{\text{rm}}(\mathbf{D}) \big)
 $$
@@ -94,7 +94,7 @@ D = np.random.normal(size=Ns)
 KD = KroneckerDiag(D)
 ```
 
-This can operate on tensors and vectors of the same shape as those operated on by [`KroneckerProduct`](../api/kroneckerproduct)s and [`KroneckerSum`](../api/kroneckersum)s. 
+This can operate on tensors and vectors of the same shape as those operated on by [`KroneckerProduct`](../../api/kroneckerproduct)s and [`KroneckerSum`](../../api/kroneckersum)s. 
 
 ```python
 assert (KD @ x).shape == (30 * 40 * 50, )
@@ -105,9 +105,9 @@ assert (KD @ X).shape == (30, 40, 50)
 
 ## KroneckerIdentity
 
-The [`KroneckerIdentity`](../api/kroneckeridentity) class is used to represent an identity matrix. It can be instantiated by passing either
+The [`KroneckerIdentity`](../../api/kroneckeridentity) class is used to represent an identity matrix. It can be instantiated by passing either
 
-* `like`: another [`KroneckerOperator`](../api/kroneckeroperator) of the same size, or
+* `like`: another [`KroneckerOperator`](../../api/kroneckeroperator) of the same size, or
 * `tensor_shape`: the shape of tensors this operator should act on
 
 ```python

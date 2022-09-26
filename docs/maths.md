@@ -1,3 +1,5 @@
+# Maths
+
 The result of taking the Kronecker product of two matrices \(\mathbf{A}^{(1)}\) and \(\mathbf{A}^{(2)}\), with shapes \( (N_1 \times N_1) \) and \((N_2 \times N_2)\) respectively, is a larger matrix of shape \((N_1 N_2 \times N_1 N_2 )\). It is denoted as \( \mathbf{A}^{(1)} \otimes \mathbf{A}^{(2)} \) and is given by 
 
 $$

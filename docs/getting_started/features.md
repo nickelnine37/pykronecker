@@ -1,6 +1,6 @@
 # Other Features
 
-A number of other features are available for `KroneckerOperator` instances. 
+A number of other features are available for [`KroneckerOperator`](../../api/kroneckeroperator) instances. 
 
 Operators can be summed down axis 0, or 1 or over the whole matrix. 
 
@@ -24,7 +24,7 @@ Operators can also be turned into a literal array using `.to_array()`. However, 
 print(KP.to_array())
 ```
 
-`KroneckerProduct`, `KroneckerDiag` and `KroneckerIdentity` operators, as well as products and Block diagonal matrices constructed with these operators, can be inverted using `.inv()`. 
+[`KroneckerProduct`](../../api/kroneckerproduct), [`KroneckerDiag`](../../api/kroneckerdiag) and [`KroneckerIdentity`](../../api/kroneckeridentity) operators, as well as products and Block diagonal matrices constructed with these operators, can be inverted using `.inv()`. 
 
 ```python
 KPi = KP.inv()

@@ -12,7 +12,7 @@ We can create a representation of this matrix using the [`KroneckerBlock`](../..
 
 ```python
 import numpy as np
-from pykronecker import KroneckerProduct, KroneckerSum, KroneckerIdentity
+from pykronecker import KroneckerProduct, KroneckerSum, KroneckerIdentity, KroneckerBlock
 
 Ns = (200, 300)
 
@@ -36,7 +36,7 @@ x = np.random.normal(size=200 * 300 * 2)
 print(M @ x)
 ```
 
-Block operators can also be composed of a mixture of `KroneckerOperators` and NumPy arrays. Consider a the following block matrix
+Block operators can also be composed of a mixture of [`KroneckerOperator`](../../api/kroneckeroperator)s and NumPy arrays. Consider a the following block matrix
 $$
 \mathbf{L} = 
 \begin{bmatrix}
@@ -59,7 +59,7 @@ y = np.random.normal(size=(200 * 300 * 5))
 print(L @ y)
 ```
 
-For convenience, there is also a `KroneckerBlockDiag` class which creates block diagonal operators. For example, consider the following block diagonal matrix. 
+For convenience, there is also a [`KroneckerBlockDiag`](../../api/kroneckerblockdiag) class which creates block diagonal operators. For example, consider the following block diagonal matrix. 
 $$
 \mathbf{P} = 
 \begin{bmatrix}
@@ -70,6 +70,8 @@ $$
 This can be created as follows. 
 
 ```python
+from pykronecker import KroneckerBlockDiag
+
 M11 = KroneckerProduct(As)
 I = np.eye(5)
 

@@ -9,17 +9,16 @@ nav:
               - Deriving new operators: getting_started/composite.md
               - Block operators: getting_started/block.md
               - Other features: getting_started/features.md
-        - Acceleration with JAX: jax.md
-#        - API Reference:
-#              - KroneckerOperator: api/kroneckeroperator.md
-#              - KroneckerProduct: api/kroneckerproduct.md
-#              - KroneckerSum: api/kroneckersum.md
-#              - KroneckerDiag: api/kroneckerdiag.md
-#              - KroneckerIdentity: api/kroneckeridentity.md
-#              - KroneckerBlock: api/kroneckerblock.md
-#              - KroneckerBlockDiag: api/kroneckerblockdiag.md
-
-#        - Examples: examples.md
+        - GPU Support and JAX: jax.md
+        - API Reference:
+              - KroneckerOperator: api/kroneckeroperator.md
+              - KroneckerProduct: api/kroneckerproduct.md
+              - KroneckerSum: api/kroneckersum.md
+              - KroneckerDiag: api/kroneckerdiag.md
+              - KroneckerIdentity: api/kroneckeridentity.md
+              - KroneckerBlock: api/kroneckerblock.md
+              - KroneckerBlockDiag: api/kroneckerblockdiag.md
+        - Maths: maths.md
 #        - Developers: about.md
 
 theme: readthedocs
