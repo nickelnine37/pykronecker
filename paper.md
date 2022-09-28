@@ -10,11 +10,11 @@ tags:
   - GPU
 authors:
   - name: Edward Antonian
-    equal-contrib: true
     affiliation: 1
   - name: Gareth W. Peters
-    equal-contrib: true 
     affiliation: 2
+  - name: Michael Chantler
+    affiliation: 1
 affiliations:
  - name: Heriot-Watt University, UK
    index: 1
@@ -74,7 +74,7 @@ To the best of the our knowledge, no existing software achieves all three of the
 
 One potential alternative in Python is the PyLops library which provides an interface for general functionally-defined linear operators, and includes a Kronecker product implementation [@Ravasi2020]. It also supports GPU acceleration with CuPy [@okuta2017]. However, as a more general library, PyLops does not provide support for the Kronecker product of more than two matrices, implement a Kronecker sum operator, implement matrix-tensor multiplication, or provide automatic differentiation. It is also significantly slower than PyKronecker when operating on simple NumPy arrays. 
 
-Another alternative is the library Kronecker.jl [@Stock2020], implemented in the Julia programming language [bezanson2017]. Kronecker.jl has many of the same aims as PyKronecker and has a a clean interface, making use of Julia's unicode support to create Kronecker products with a custom `⊗` operator. However, at this time, the library does not support GPU acceleration or automatic differentiation although the former is in development. 
+Another alternative is the library Kronecker.jl [@Stock2020], implemented in the Julia programming language [@bezanson2017]. Kronecker.jl has many of the same aims as PyKronecker and has a a clean interface, making use of Julia's unicode support to create Kronecker products with a custom `⊗` operator. However, at this time, the library does not support GPU acceleration or automatic differentiation, although the former is in development. 
 
 Table 1. shows a feature comparison of these libraries, along with a custom NumPy implementation using  the vec trick. It also shows the time to compute the multiplication of a Kronecker product against a vector for two scenarios. In the first, the Kronecker product is constructed from two of matrices of size $(400 \times 400)$ and $(500 \times 500)$, and in the second Kronecker product is constructed from three of matrices of size $(100 \times 100)$,  $(150 \times 150)$ and  $(200 \times 200)$ respectively. Experiments were performed with an Intel Core  2.80GHz i7-7700HQ CPU, and an Nvidia 1050Ti GPU.  In both cases, PyKronecker on the GPU is the fastest by a significant margin. 
 
@@ -87,6 +87,11 @@ Table 1. shows a feature comparison of these libraries, along with a custom NumP
 | PyKronecker (CPU) | Yes    | Yes      | No          | 4.74 ms ± 318 µs        | 15.1 ms ± 2.24 ms            |
 | PyKronecker (GPU) | Yes    | Yes      | Yes         | 261 µs ± 17.3 µs        | 258 µs ± 78.2 µs             |
 
+# Outlook and Future Work
 
+There are several features that we are developing to expand the functionality of PyKronecker. The first is to provide support for non-square operators. In a typical problem, the Kronecker operators encountered are square, however, there are a significant minority of contexts where this is not the case. 
+
+* Solvers
+* Sparse matrices
 
 # References
