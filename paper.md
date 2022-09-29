@@ -28,6 +28,8 @@ bibliography: paper.bib
 
 Matrix operators composed of Kronecker products and related objects, such as Kronecker sums, arise in many areas of applied mathematics including signal processing, semidefinite programming, and quantum computing [@loan2000]. As such, a computational toolkit for manipulating Kronecker-based systems, in a way that is both efficient and idiomatic, has the potential to aid research in many fields.  PyKronecker aims to deliver this in the Python programming language by providing a simple API that integrates well with the widely-used NumPy library [@harris2020], with support for automatic differentiation and accelerated computation on GPU/TPU hardware using Jax [@jax2018].  
 
+## Kronecker products
+
 The Kronecker product of an $(n \times n)$ matrix $\mathbf{A}$ and an $(m \times m)$ matrix $\mathbf{B}$, denoted $\mathbf{A} \otimes \mathbf{B}$, is defined  by
 $$
 \mathbf{A} \otimes \mathbf{B} = 
@@ -58,11 +60,11 @@ PyKronecker is aimed at researchers in any area of applied mathematics where sys
 
 a) *To provide a simple and intuitive object-oriented interface for manipulating systems involving Kronecker-products with Python*.
 
-In PyKronecker, users can define new composite operators by applying familiar matrix operations such as scaling, addition, matrix multiplication and transposition. This allows the user to manipulate Kronecker operators as if they are large NumPy arrays, rather than having to write efficient but sometimes cryptic expressions involving the individual sub-matrices. This can greatly simplify code, making it easier to read, debug and refactor.  
+In PyKronecker, expressions are written in terms of a high-level operator abstraction. Users can define new composite operators by applying familiar matrix operations such as scaling, matrix addition/multiplication and transposition. This allows Kronecker operators to be manipulated as if they are large NumPy arrays, removing the need to write efficient but sometimes cryptic expressions involving the individual sub-matrices. This can greatly simplify code, making it easier to read, debug and refactor, allowing users to focus on their research goals without concerning themselves with underlying performance
 
 b) *To execute matrix-vector multiplications in a way that is maximally efficient and runs on parallel GPU/TPU hardware.*
 
-By making use of the generalized vec trick, Just In Time (JIT) compilation, and parallel processing, PyKronecker can achieve very fast execution times compared to alternative implementations. This complexity is handled under the hood, allowing users to focus on their research goals without concerning themselves with performance. 
+Significant effort has gone into optimising the execution of matrix-vector and matrix-tensor multiplications. In particular, these comprise the generalized vec trick, Just In Time (JIT) compilation, and parallel processing on GPU/TPU hardware. As a result of this, PyKronecker is able to achieve very fast execution times compared to alternative implementations (see table 1) .  
 
 c) *To allow automatic differentiation for complex loss functions involving Kronecker products.*
 
@@ -70,7 +72,7 @@ Many widely-used optimisation algorithms in Machine Learning (ML), such as stoch
 
 To the best of the our knowledge, no existing software achieves all three of these aims. 
 
-## Comparison with other libraries
+## Comparison with existing libraries
 
 One potential alternative in Python is the PyLops library which provides an interface for general functionally-defined linear operators, and includes a Kronecker product implementation [@Ravasi2020]. It also supports GPU acceleration with CuPy [@okuta2017]. However, as a more general library, PyLops does not provide support for the Kronecker product of more than two matrices, implement a Kronecker sum operator, implement matrix-tensor multiplication, or provide automatic differentiation. It is also significantly slower than PyKronecker when operating on simple NumPy arrays. 
 
@@ -78,20 +80,19 @@ Another alternative is the library Kronecker.jl [@Stock2020], implemented in the
 
 Table 1. shows a feature comparison of these libraries, along with a custom NumPy implementation using  the vec trick. It also shows the time to compute the multiplication of a Kronecker product against a vector for two scenarios. In the first, the Kronecker product is constructed from two of matrices of size $(400 \times 400)$ and $(500 \times 500)$, and in the second Kronecker product is constructed from three of matrices of size $(100 \times 100)$,  $(150 \times 150)$ and  $(200 \times 200)$ respectively. Experiments were performed with an Intel Core  2.80GHz i7-7700HQ CPU, and an Nvidia 1050Ti GPU.  In both cases, PyKronecker on the GPU is the fastest by a significant margin. 
 
-| Implementation    | Python | Autodiff | GPU support | Compute time (400, 500) | Compute time (100, 150, 200) |
-| ----------------- | ------ | -------- | ----------- | ----------------------- | ---------------------------- |
-| Pure NumPy        | Yes    | No       | No          | 5.04 ms ± 343 µs        | 38.9 ms ± 4.07 ms            |
-| Kronecker.jl      | No     | No       | No          | 9.61 ms ± 881 µs        | 380 ms ± 6.15 ms             |
-| PyLops (CPU)      | Yes    | No       | No          | 17.9 ms ± 986 µs        | 478 ms ± 4.79 ms             |
-| PyLops (GPU)      | Yes    | No       | Yes         | 54.6 ms ± 1.04 ms       | 4.06 s ± 182 ms              |
-| PyKronecker (CPU) | Yes    | Yes      | No          | 4.74 ms ± 318 µs        | 15.1 ms ± 2.24 ms            |
-| PyKronecker (GPU) | Yes    | Yes      | Yes         | 261 µs ± 17.3 µs        | 258 µs ± 78.2 µs             |
+| Implementation    | Python | Auto-diff | GPU support | Compute time (400, 500) | Compute time (100, 150, 200) |
+| ----------------- | ------ | --------- | ----------- | ----------------------- | ---------------------------- |
+| Pure NumPy        | Yes    | No        | No          | 5.04 ms ± 343 µs        | 38.9 ms ± 4.07 ms            |
+| Kronecker.jl      | No     | No        | No          | 9.61 ms ± 881 µs        | 380 ms ± 6.15 ms             |
+| PyLops (CPU)      | Yes    | No        | No          | 17.9 ms ± 986 µs        | 478 ms ± 4.79 ms             |
+| PyLops (GPU)      | Yes    | No        | Yes         | 54.6 ms ± 1.04 ms       | 4.06 s ± 182 ms              |
+| PyKronecker (CPU) | Yes    | Yes       | No          | 4.74 ms ± 318 µs        | 15.1 ms ± 2.24 ms            |
+| PyKronecker (GPU) | Yes    | Yes       | Yes         | 261 µs ± 17.3 µs        | 258 µs ± 78.2 µs             |
 
 # Outlook and Future Work
 
-There are several features that we are developing to expand the functionality of PyKronecker. The first is to provide support for non-square operators. In a typical problem, the Kronecker operators encountered are square, however, there are a significant minority of contexts where this is not the case. 
+There are several features that we are developing to expand the functionality of PyKronecker. The first is to provide support for non-square operators. In a typical problem, the Kronecker operators encountered represent simple linear transforms which preserve dimensionality, however, there are a significant minority of contexts where this is not the case. The inclusion of this feature would increase the range of possible applications. Secondly, we would like add support for sparse matrices. This would enable computation with larger matrices and faster execution times where appropriate.  However this would require integration with Jax's sparse module, which is currently under development. Finally, for convenience, it may be useful to add some commonly used algorithms such as the conjugate gradient method for solving linear systems [@shewchuk1994], least squares, and various matrix decompositions such as the eigenvalue, Cholesky and LU decompositions.   
 
-* Solvers
-* Sparse matrices
+# Acknowledgements
 
 # References
