@@ -8,6 +8,7 @@ nav:
               - Basic operators: getting_started/operators.md
               - Deriving new operators: getting_started/composite.md
               - Block operators: getting_started/block.md
+              - Automatic Differentiation: getting_started/autodiff.md
               - Other features: getting_started/features.md
         - GPU Support and JAX: jax.md
         - API Reference:

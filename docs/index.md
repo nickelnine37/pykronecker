@@ -9,7 +9,7 @@ PyKronecker is a library for manipulating matrices which have a [Kronecker produ
 
 ## Quickstart
 
-Create a [`KroneckerProduct`](https://pykronecker.readthedocs.io/en/latest/api/kroneckerproduct/) operator from two or more square arrays. 
+Create a [`KroneckerProduct`](https://pykronecker.readthedocs.io/en/latest/api/kroneckerproduct/) operator from two or more square arrays. These may be real or complex-valued. 
 
 ```python
 import numpy as np
