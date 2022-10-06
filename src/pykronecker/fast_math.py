@@ -26,10 +26,10 @@ def kronecker_product_tensor(As: List[ndarray], X: ndarray):
 
     out = X
 
-    for i, A in enumerate(As):
-        out = mod.tensordot(A, out, axes=[[1], [i]])
+    for A in As:
+        out = (A @ out.reshape(A.shape[0], -1)).T
 
-    return out.transpose()
+    return out.reshape(X.shape)
 
 
 def kronecker_product_vector(As: List[ndarray], X: ndarray, shape: tuple):

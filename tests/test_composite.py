@@ -46,7 +46,6 @@ def test_sum():
                             optimised ** 2
 
 
-
 def test_product():
 
     for matrix_kind in ['numpy', 'jax']:

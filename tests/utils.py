@@ -132,22 +132,22 @@ def assert_conversions(literal: ndarray, optimised: KroneckerOperator):
     """
 
     a, b = literal, optimised.to_array()
-    assert np.allclose(a, b, rtol=1e-3, atol=1e-5), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(literal.shape):.4e}. literal = {a.ravel()}, optimised = {b.ravel()}'
+    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(literal.shape):.4e}. literal = {a.ravel()}, optimised = {b.ravel()}'
 
     a, b = literal.T, optimised.T.to_array()
-    assert np.allclose(a, b, rtol=1e-3, atol=1e-5), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(literal.shape):.4e}. literal = {a.ravel()}, optimised = {b.ravel()}'
+    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(literal.shape):.4e}. literal = {a.ravel()}, optimised = {b.ravel()}'
 
     a, b = literal.conj(), optimised.conj().to_array()
-    assert np.allclose(a, b, rtol=1e-3, atol=1e-5), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(literal.shape):.4e}. literal = {a.ravel()}, optimised = {b.ravel()}'
+    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(literal.shape):.4e}. literal = {a.ravel()}, optimised = {b.ravel()}'
 
     a, b = literal.conj().T, optimised.H.to_array()
-    assert np.allclose(a, b, rtol=1e-3, atol=1e-5), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(literal.shape):.4e}. literal = {a.ravel()}, optimised = {b.ravel()}'
+    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(literal.shape):.4e}. literal = {a.ravel()}, optimised = {b.ravel()}'
 
     a, b = literal, (+optimised).to_array()
-    assert np.allclose(a, b, rtol=1e-3, atol=1e-5), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(literal.shape):.4e}. literal = {a.ravel()}, optimised = {b.ravel()}'
+    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(literal.shape):.4e}. literal = {a.ravel()}, optimised = {b.ravel()}'
 
     a, b = -literal, (-optimised).to_array()
-    assert np.allclose(a, b, rtol=1e-3, atol=1e-5), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(literal.shape):.4e}. literal = {a.ravel()}, optimised = {b.ravel()}'
+    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(literal.shape):.4e}. literal = {a.ravel()}, optimised = {b.ravel()}'
 
 
 def assert_basic_fails(optimised: KroneckerOperator):
@@ -174,13 +174,13 @@ def assert_vec_matrix_multiply(X: ndarray, literal: ndarray, optimised: Kronecke
     """
 
     a, b = literal @ vec(X), optimised @ vec(X)
-    assert np.allclose(a, b, rtol=1e-3, atol=1e-5), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(X.shape):.4e}. literal = {a}, optimised = {b}'
+    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(X.shape):.4e}. literal = {a}, optimised = {b}'
 
     a, b = vec(X) @ literal, vec(X) @ optimised
-    assert np.allclose(a, b, rtol=1e-3, atol=1e-5), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(X.shape):.4e}. literal = {a}, optimised = {b}'
+    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(X.shape):.4e}. literal = {a}, optimised = {b}'
 
     a, b = vec(X) @ literal @ vec(X), vec(X) @ optimised @ vec(X)
-    assert np.isclose(a, b, rtol=1e-3, atol=1e-5), f'failed: MSE = {(a - b) ** 2  / np.prod(X.shape):.4e}. literal = {a}, optimised = {b}'
+    assert np.isclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {(a - b) ** 2  / np.prod(X.shape):.4e}. literal = {a}, optimised = {b}'
 
 
 def assert_multivec_matrix_multiply(P: ndarray, literal: ndarray, optimised: KroneckerOperator):
@@ -204,10 +204,10 @@ def assert_ten_matrix_multiply(X: ndarray, literal: ndarray, optimised: Kronecke
     """
 
     a, b = ten(literal @ vec(X), like=X), optimised @ X
-    assert np.allclose(a, b, rtol=1e-3, atol=1e-5), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(X.shape):.4e}. literal = {a}, optimised = {b}'
+    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(X.shape):.4e}. literal = {a}, optimised = {b}'
 
     a, b = ten(vec(X) @ literal, shape=X.shape), X @ optimised
-    assert np.allclose(a, b, rtol=1e-3, atol=1e-5), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(X.shape):.4e}. literal = {a}, optimised = {b}'
+    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(X.shape):.4e}. literal = {a}, optimised = {b}'
 
 
 def assert_np_matmul(X: ndarray, literal: ndarray, optimised: KroneckerOperator):
@@ -215,13 +215,13 @@ def assert_np_matmul(X: ndarray, literal: ndarray, optimised: KroneckerOperator)
     Assert forwards and backwards matrix multiplication with np.matmul
     """
     a, b = np.matmul(literal, vec(X)), np.matmul(optimised, vec(X))
-    assert np.allclose(a, b, rtol=1e-3, atol=1e-5), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(X.shape):.4e}. literal = {a}, optimised = {b}'
+    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(X.shape):.4e}. literal = {a}, optimised = {b}'
     
     a, b = np.matmul(vec(X), literal), np.matmul(vec(X), optimised)
-    assert np.allclose(a, b, rtol=1e-3, atol=1e-5), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(X.shape):.4e}. literal = {a}, optimised = {b}'
+    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(X.shape):.4e}. literal = {a}, optimised = {b}'
     
     a, b = np.matmul(vec(X), np.matmul(literal, vec(X))), np.matmul(vec(X), np.matmul(optimised, vec(X)))
-    assert np.isclose(a, b, rtol=1e-3, atol=1e-5), f'failed: MSE = {(a - b) ** 2  / np.prod(X.shape):.4e}. literal = {a}, optimised = {b}'
+    assert np.isclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {(a - b) ** 2  / np.prod(X.shape):.4e}. literal = {a}, optimised = {b}'
 
 
 def assert_sum(literal: ndarray, optimised: KroneckerOperator):
@@ -230,13 +230,13 @@ def assert_sum(literal: ndarray, optimised: KroneckerOperator):
     """
 
     a, b = literal.sum(0), optimised.sum(0),
-    assert np.allclose(a, b, rtol=1e-3, atol=1e-5), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(literal.shape):.4e}. literal = {a}, optimised = {b}'
+    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(literal.shape):.4e}. literal = {a}, optimised = {b}'
 
     a, b = literal.sum(1), optimised.sum(1)
-    assert np.allclose(a, b, rtol=1e-3, atol=1e-5), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(literal.shape):.4e}. literal = {a}, optimised = {b}'
+    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(literal.shape):.4e}. literal = {a}, optimised = {b}'
 
     a, b = literal.sum(), optimised.sum()
-    assert np.allclose(a, b, rtol=1e-3, atol=1e-5), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(literal.shape):.4e}. literal = {a}, optimised = {b}'
+    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(literal.shape):.4e}. literal = {a}, optimised = {b}'
 
 
 def assert_diag(literal: ndarray, optimised: KroneckerOperator):
@@ -244,7 +244,7 @@ def assert_diag(literal: ndarray, optimised: KroneckerOperator):
     Test diag operation
     """
     a, b = np.diag(literal), optimised.diag()
-    assert np.allclose(a, b, rtol=1e-3, atol=1e-5), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(a.shape):.4e}. literal = {a}, optimised = {b}'
+    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(a.shape):.4e}. literal = {a}, optimised = {b}'
 
 
 def assert_scalar_multiply(literal: ndarray, optimised: KroneckerOperator):
@@ -253,10 +253,10 @@ def assert_scalar_multiply(literal: ndarray, optimised: KroneckerOperator):
     """
 
     for factor in [-1, 0, np.random.normal(), np.float64(np.random.normal()), np.random.normal() + 1j * np.random.normal()]:
-        assert np.allclose(factor * literal, (factor * optimised).to_array(), rtol=1e-3, atol=1e-5)
-        assert np.allclose(literal * factor, (optimised * factor).to_array(), rtol=1e-3, atol=1e-5)
-        assert np.allclose(np.multiply(factor, literal), np.multiply(factor, optimised).to_array(), rtol=1e-3, atol=1e-5)
-        assert np.allclose(np.multiply(literal, factor), np.multiply(optimised, factor).to_array(), rtol=1e-3, atol=1e-5)
+        assert np.allclose(factor * literal, (factor * optimised).to_array(), rtol=1e-2, atol=1e-4)
+        assert np.allclose(literal * factor, (optimised * factor).to_array(), rtol=1e-2, atol=1e-4)
+        assert np.allclose(np.multiply(factor, literal), np.multiply(factor, optimised).to_array(), rtol=1e-2, atol=1e-4)
+        assert np.allclose(np.multiply(literal, factor), np.multiply(optimised, factor).to_array(), rtol=1e-2, atol=1e-4)
 
 
 def assert_str(optimised: KroneckerOperator):
@@ -265,8 +265,8 @@ def assert_str(optimised: KroneckerOperator):
 
 
 def assert_copy(literal: ndarray, optimised: KroneckerOperator):
-    assert np.allclose(literal, optimised.copy().to_array(), rtol=1e-3, atol=1e-5)
-    assert np.allclose(literal, optimised.deepcopy().to_array(), rtol=1e-3, atol=1e-5)
+    assert np.allclose(literal, optimised.copy().to_array(), rtol=1e-2, atol=1e-4)
+    assert np.allclose(literal, optimised.deepcopy().to_array(), rtol=1e-2, atol=1e-4)
 
 
 def assert_exceptions(optimised: KroneckerOperator):
@@ -294,16 +294,17 @@ def assert_pow_fails(optimised: KroneckerOperator):
         with pytest.raises(NotImplementedError):
             optimised ** power
 
+
 def assert_self_hadamard(literal: ndarray, optimised: KroneckerOperator):
 
     a, b = literal * literal, (optimised * optimised).to_array()
-    assert np.allclose(a, b, rtol=1e-3, atol=1e-5), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(literal.shape):.4e}. literal = {a.ravel()}, optimised = {b.ravel()}'
+    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(literal.shape):.4e}. literal = {a.ravel()}, optimised = {b.ravel()}'
 
 
 def assert_hadamard(literal1: ndarray, optimised1: KroneckerOperator, literal2: ndarray, optimised2: KroneckerOperator):
 
     a, b = literal1 * literal2, (optimised1 * optimised2).to_array()
-    assert np.allclose(a, b, rtol=1e-3, atol=1e-5), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(literal1.shape):.4e}. literal = {a.ravel()}, optimised = {b.ravel()}'
+    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(literal1.shape):.4e}. literal = {a.ravel()}, optimised = {b.ravel()}'
 
 
 def assert_self_hadamard_fails(optimised: KroneckerOperator):
