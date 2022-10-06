@@ -59,6 +59,8 @@ def kronecker_sum_tensor(As: List[ndarray], X: ndarray):
     """
     Apply the Kronecker sum of square matrices As to tensor X
     """
+    # return sum((A @ X.transpose(np.roll(range(3), -i)).reshape(A.shape[0], -1)).reshape(np.array(X.shape)[np.roll(range(3), -i)]).transpose(np.roll(range(3), i)) for i, A in enumerate(As))
+    # ^ avoids tensordot but not as fast
     return sum(mod.tensordot(A, X, axes=[[1], [i]]).transpose(get_trans(i, len(As))) for i, A in enumerate(As))
 
 
