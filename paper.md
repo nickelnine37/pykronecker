@@ -52,7 +52,11 @@ and
 $$
 \bigoplus_{i=1}^k \mathbf{A}^{(i)} = \mathbf{A}^{(1)} \oplus \mathbf{A}^{(2)} \oplus \dots \oplus \mathbf{A}^{(k)}
 $$
-The resultant operators can act on either vectors of length $N = \prod_{i=1}^k n_i$, or equivalently tensors of shape $(n_1, n_2, \dots n_k)$. Whilst a naive implementation of matrix-vector multiplication in this space has time and memory complexity of $O(N^2)$ a more efficient implementation can be achieved using the 'generalized vec trick' [@Airola2018]. By applying this algorithm, the required memory and time complexity is reduced to $O(\sum_{i=1}^k n_i^2)$, and $O(N \sum_{i=1}^k n_i)$ respectively, making it possible to solve many problems that would otherwise be intractable. 
+The resultant operators can act on either vectors of length $N = \prod_{i=1}^k n_i$, or equivalently tensors of shape $(n_1, n_2, \dots n_k)$. 
+
+## Efficient implementation of Kronecker-Vector Multiplication
+
+Whilst a naive implementation of matrix-vector multiplication in this space has time and memory complexity of $O(N^2)$ a much more efficient implementation can be achieved. Work on this topic can be traced back to @Roth1934, however the first direct treatment can be found in @Pereyra1973 and @DeBoor1979, both of which describe an efficient algorithm for the multiplication of a Kronecker product matrix onto a vector/tensor in algebraic terms.  Later work such as @Davio1981, @Buis1996 and @Fackler2019 focused on optimising this algorithm further by considering other practical issues such as available hardware and physical memory layout. In particular, @Fackler2019 proposes the *kronx* algorithm, which forms the basis for the implementation found in PyKronecker, with some differences resulting from the C-style row-major memory layout used in Python as opposed to the Fortran-style column-major layout of Matlab, which was the target language of the aforementioned paper. In practice, by applying *kronx*, the required memory and time complexity is reduced to $O(N)$ and $O(N \sum_{i=1}^k n_i)$ respectively. This makes it possible to solve many problems that would otherwise be intractable. 
 
 # Statement of need
 
@@ -78,7 +82,7 @@ One potential alternative in Python is the PyLops library which provides an inte
 
 Another alternative is the library Kronecker.jl [@Stock2020], implemented in the Julia programming language [@bezanson2017]. Kronecker.jl has many of the same aims as PyKronecker and has a a clean interface, making use of Julia's unicode support to create Kronecker products with a custom `⊗` operator. However, at this time, the library does not support GPU acceleration or automatic differentiation, although the former is in development. 
 
-Table 1. shows a feature comparison of these libraries, along with a custom NumPy implementation using  the vec trick. It also shows the time to compute the multiplication of a Kronecker product against a vector for two scenarios. In the first, the Kronecker product is constructed from two of matrices of size $(400 \times 400)$ and $(500 \times 500)$, and in the second Kronecker product is constructed from three of matrices of size $(100 \times 100)$,  $(150 \times 150)$ and  $(200 \times 200)$ respectively. Experiments were performed with an Intel Core  2.80GHz i7-7700HQ CPU, and an Nvidia 1050Ti GPU.  In both cases, PyKronecker on the GPU is the fastest by a significant margin. 
+Table 1. shows a feature comparison of these libraries, along with a custom efficient NumPy implementation. It also shows the time to compute the multiplication of a Kronecker product against a vector for two scenarios. In the first, the Kronecker product is constructed from two of matrices of size $(400 \times 400)$ and $(500 \times 500)$, and in the second Kronecker product is constructed from three of matrices of size $(100 \times 100)$,  $(150 \times 150)$ and  $(200 \times 200)$ respectively. Experiments were performed with an Intel Core  2.80GHz i7-7700HQ CPU, and an Nvidia 1050Ti GPU.  In both cases, PyKronecker on the GPU is the fastest by a significant margin. 
 
 | Implementation    | Python | Auto-diff | GPU support | Compute time (400, 500) | Compute time (100, 150, 200) |
 | ----------------- | ------ | --------- | ----------- | ----------------------- | ---------------------------- |
