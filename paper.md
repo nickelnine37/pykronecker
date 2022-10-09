@@ -95,8 +95,15 @@ Table 1. shows a feature comparison of these libraries, along with the kronx alg
 
 # Outlook and Future Work
 
-There are several features that we are developing to expand the functionality of PyKronecker. The first is to provide support for non-square operators. In a typical problem, the Kronecker operators encountered represent simple linear transformations which preserve dimensionality, however, there are a significant minority of contexts where this is not the case. The inclusion of this feature would increase the range of possible applications. Secondly, we would like add support for sparse matrices. This would enable computation with larger matrices and faster execution times where possible.  However this would require integration with Jax's sparse module, which is currently under development. Finally, for convenience, it may be useful to add some commonly used algorithms such as the conjugate gradient method for solving linear systems [@shewchuk1994], least squares, and various matrix decompositions such as eigenvalue, Cholesky and LU.   
+There are several features that we are developing to expand the functionality of PyKronecker. The first is to provide support for non-square operators. In a typical problem, the Kronecker operators encountered represent simple linear transformations which preserve dimensionality, however, there are a significant minority of contexts where this is not the case. The inclusion of this feature would increase the range of possible applications. Secondly, we would like add support for sparse matrices. This would enable computation with larger matrices and faster execution times where applicable.  However this would require integration with Jax's sparse module, which is currently under development. Finally, for convenience, it may be useful to add some commonly used algorithms such as the conjugate gradient method for solving linear systems [@shewchuk1994], least squares, and various matrix decompositions such as eigenvalue, Cholesky and LU.   
 
+# Acknowledgements
 
+Thank you to Chris Krapu for valuable discussions, especially with regard to integrating PyKronecker with Jax, and automatic differentiation. 
 
 # References
+
+
+
+
+
