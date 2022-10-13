@@ -1,4 +1,4 @@
-# Basic Operators
+# Creating basic operators
 
 PyKronecker provides four basic operators, which are all subclasses of the [`KroneckerOperator`](../api/kroneckeroperator) class. They are 
 
@@ -36,13 +36,12 @@ The resultant shape after `KP` operates on either of these objects will be of th
 
 ```python
 x = np.random.normal(size=(30 * 40 * 50))
-X = np.random.normal(size=(30, 40, 50))
+X = x.reshape(30, 40, 50)
 
-assert (KP @ x).shape == (30 * 40 * 50, )
-assert (KP @ X).shape == (30, 40, 50)
+assert np.allclose(KP @ x, (KP @ X).ravel())
 ```
 
-Due to how this operation is handled under the hood, it is slightly for efficient to multiply tensors rather than vectors. 
+Due to how this operation is handled under the hood, it is slightly more efficient to multiply tensors rather than vectors. 
 
 
 
@@ -79,7 +78,7 @@ The [`KroneckerDiag`](../../api/kroneckerdiag) class is used to represent diagon
 $$
 \mathbf{A} = \text{diag}\big( \text{vec}_{\text{rm}}(\mathbf{D}) \big)
 $$
-Note, this is different from the \(\text{vec}(\cdot)\) operator [commonly used in mathematics](https://en.wikipedia.org/wiki/Vectorization_(mathematics)), which is defined in terms of column major vectorisation. We use row major vectorisation in this library for two reasons:
+Note, this is different from the \(\text{vec}(\cdot)\) operator [commonly used in mathematics](https://en.wikipedia.org/wiki/Vectorization_(mathematics)), which vectrorises matrices in column-major order. We use row major vectorisation in this library for two reasons:
 
 * It aligns better with [NumPy's memory organisation](https://numpy.org/devdocs/dev/internals.html). 
 * It means Kronecker products created from matrices of size  \((N_1, N_2, ..., N_n)\)  act on tensors of shape \((N_1, N_2, ..., N_n)\) rather than shape \((N_n, ..., N_2, N_1)\), which is less confusing. 

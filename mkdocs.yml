@@ -5,12 +5,13 @@ nav:
     - User Guide:
         - Installation: install.md
         - Getting Started:
-              - Basic operators: getting_started/operators.md
+              - Kronecker products overview: getting_started/maths.md
+              - Creating operators: getting_started/operators.md
               - Deriving new operators: getting_started/composite.md
               - Block operators: getting_started/block.md
-              - Automatic Differentiation: getting_started/autodiff.md
+              - GPU support and JAX: getting_started/jax.md
+              - Automatic differentiation: getting_started/autodiff.md
               - Other features: getting_started/features.md
-        - GPU Support and JAX: jax.md
         - API Reference:
               - KroneckerOperator: api/kroneckeroperator.md
               - KroneckerProduct: api/kroneckerproduct.md
@@ -19,7 +20,6 @@ nav:
               - KroneckerIdentity: api/kroneckeridentity.md
               - KroneckerBlock: api/kroneckerblock.md
               - KroneckerBlockDiag: api/kroneckerblockdiag.md
-        - Maths: maths.md
 #        - Developers: about.md
 
 theme: readthedocs
