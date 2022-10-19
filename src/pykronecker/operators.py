@@ -287,10 +287,10 @@ class KroneckerDiag(KroneckerOperator):
         return self.factor * kronecker_diag_literal(self.A)
 
     def __repr__(self) -> str:
-        return 'KroneckerDiag({})'.format(' ⊗ '.join([str(i) for i in reversed(self.A.shape)]))
+        return 'KroneckerDiag({})'.format(' ⊗ '.join([str(i) for i in self.A.shape]))
 
     def __str__(self) -> str:
-        return 'KroneckerDiag({})'.format(' ⊗ '.join([str(i) for i in reversed(self.A.shape)]))
+        return 'KroneckerDiag({})'.format(' ⊗ '.join([str(i) for i in self.A.shape]))
 
 
 class KroneckerIdentity(KroneckerOperator):
