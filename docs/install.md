@@ -15,7 +15,7 @@ This will install the vanilla NumPy version of the library. This means [`Kroneck
 Linux and MacOS users have the additional option of installing PyKronecker with [Jax](https://jax.readthedocs.io/en/latest/index.html) support. The benefit of this is significantly faster runtimes, even when working with NumPy arrays only, due to Jax's Just In Time (JIT) complier. This can be installed by running
 
 ```bash
-pip3 install pykronecker[jax]
+pip3 install "pykronecker[jax]"
 ```
 
 Note that jaxlib is only officially supported on Linux (Ubuntu 16.04 or later) and macOS (10.12 or later) platforms.
