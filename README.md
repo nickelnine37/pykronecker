@@ -21,7 +21,7 @@ pip3 install pykronecker
 This will install the vanilla version of the library, with support for NumPy arrays only. Linux users have the additional option of installing PyKronecker with [Jax](https://jax.readthedocs.io/en/latest/index.html) support. The benefit of this is significantly faster runtimes, even when working with NumPy arrays only, due to Jax's JIT complier. This can be installed by running
 
 ```
-pip3 install pykronecker[jax]
+pip3 install "pykronecker[jax]"
 ```
 
 For Linux users with an Nvidia graphics card, PyKronecker is also compatible with the GPU and TPU version of Jax. However, since this relies on CUDA and cuDNN, it is recommended to follow the instructions [here](https://github.com/google/jax#installation) to install Jax first. 
