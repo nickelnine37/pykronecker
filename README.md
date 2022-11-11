@@ -132,7 +132,7 @@ N22 = np.eye(5)
 N = KroneckerBlock([[N11, N12], 
                     [N21, N22]])
 
-print(N @ np.random.normal(size=5 * 6 * 2))
+print(N @ np.random.normal(size=5 * 6 + 5))
 ```
 
 Block diagonal matrices can also be created in a similar way 
