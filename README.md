@@ -42,26 +42,32 @@ from pykronecker import KroneckerProduct
 
 A = np.random.normal(size=(5, 5))
 B = np.random.normal(size=(6, 6))
-C = KroneckerProduct([A, B])
+
+KP = KroneckerProduct([A, B])
 ```
 
-This object can operate on both vectors of shape `(5 * 6, )` and tensors of shape `(5, 6)` using the `@` syntax for matrix multiplication. The returned array will be of the same shape.  
+This object can operate on both vectors of shape `(5 * 6, )` and tensors of shape `(5, 6)` using the `@` syntax for matrix multiplication. The returned array will be of the same shape.
 
 ```python
 x = np.random.normal(size=5 * 6)
-X = np.random.normal(size=(5, 6))
-print(C @ x)
-print(C @ X)
+X = x.reshape(5, 6)
+
+assert np.allclose(KP @ x, (KP @ X).ravel())
 ```
 
 ### KroneckerSum
 
 A `KronekerSum` can be created and used in much the same way.
 ```python
+import numpy as np
 from pykronecker import KroneckerSum
 
-D = KroneckerSum([A, B])
-print(D @ x)
+A = np.random.normal(size=(5, 5))
+B = np.random.normal(size=(6, 6))
+x = np.random.normal(size=5 * 6)
+
+KS = KroneckerSum([A, B])
+print(KS @ x)
 ```
 
 ### KroneckerDiag
@@ -69,22 +75,38 @@ print(D @ x)
 `KroneckerDiag` provides support for diagonal matrices, and can be created by passing a tensor of the appropriate size. This creates, in effect, a matrix with the vectorized tensor along the diagonal. 
 
 ```python
+import numpy as np
 from pykronecker import KroneckerDiag
 
-E = KroneckerDiag(np.random.normal(size=(5, 6)))
-print(E @ x)
+D = np.random.normal(size=(5, 6))
+x = np.random.normal(size=5 * 6)
+
+KD = KroneckerDiag(D)
+print(KD @ x)
 ```
 
 ### KroneckerIdentity
 
-Finally, `KroneckerIdentity` creates the identity matrix, which can be instantiated by passing another operator of the same size, or the shape of tensors it should act on. 
+Finally, `KroneckerIdentity` creates the identity matrix, which can be instantiated by passing another operator of the same size, or the shape of tensors the operator is expected to act on. 
 
 ```python
-from pykronecker import KroneckerIdentity
+import numpy as np
+from pykronecker import KroneckerIdentity, KroneckerDiag
 
-I1 = KroneckerIdentity(like=E)
-I2 = KroneckerIdentity(tensor_shape=(5, 6))
-print(I1 @ x, I2 @ x)
+# create another KroneckerDiag operator
+D = np.random.normal(size=(5, 6))
+KD = KroneckerDiag(D)
+
+# create a KroneckerIdentity by passing `like` parameter
+KI1 = KroneckerIdentity(like=KD)
+
+# create KroneckerIdentity by passing `tensor_shape` parameter
+KI2 = KroneckerIdentity(tensor_shape=(5, 6))
+
+x = np.random.normal(size=5 * 6)
+
+assert np.allclose(KI1 @ x, x)
+assert np.allclose(KI2 @ x, x)
 ```
 
 ## Deriving new operators
@@ -92,56 +114,102 @@ print(I1 @ x, I2 @ x)
 All four of these objects can be added or multiplied together arbitrarily to create new composite operators. In this way, they can be treated similarly to literal NumPy arrays. 
 
 ```python
-F = C @ D + C @ E
-print(F @ x)
+import numpy as np
+from pykronecker import *
+
+A = np.random.normal(size=(5, 5))
+B = np.random.normal(size=(6, 6))
+D = np.random.normal(size=(5, 6))
+x = np.random.normal(size=5 * 6)
+
+KP = KroneckerProduct([A, B])
+KS = KroneckerSum([A, B])
+KD = KroneckerDiag(D)
+KI = KroneckerIdentity(like=KP)
+
+# create a new composite operator!
+new_operator1 = KP @ KD + KS - KI
+
+print(new_operator1 @ x)
 ```
 
 Other possible operations include transposing with `.T`, and multiplying/dividing by a scalar. 
 
 ```python
-G = 2 * F.T + E / 5 
-print(G @ x)
+new_operator2 = 5 * KP.T - KS / 2
+
+print(new_operator2 @ x)
 ```
 
 Many basic operators can also be multipled element-wise just as with NumPy arrays. 
 
 ```python
-H = C * D
-print(H @ x)
+new_operator3 = KS * KP
+
+print(new_operator3 @ x)
 ```
+
+Some operators (notably, not `KroneckerSum`s) can be raised to a power element-wise
+
+```python
+new_operator4 = KP ** 2
+
+print(new_operator4 @ x)
+```
+
 
 ## Block operators
 
-We can create block operators by stacking together any mixture of `KroneckerOperator`s and/or NumPy arrays. 
+Block operators are composed of smaller operators which have been stacked into a set of blocks. In the example below, we create a new block operator `KB` which is composed of four other block operators. 
 
 ```python
-from pykronecker import KroneckerBlock
+import numpy as np
+from pykronecker import *
 
-# Block of pure KroneckerOperators
-M = KroneckerBlock([[C, D], 
-                    [E, F]])
+A = np.random.normal(size=(5, 5))
+B = np.random.normal(size=(6, 6))
+D = np.random.normal(size=(5, 6))
 
-print(M @ np.random.normal(size=5 * 6 * 2))
+KP = KroneckerProduct([A, B])
+KS = KroneckerSum([A, B])
+KD = KroneckerDiag(D)
+KI = KroneckerIdentity(like=KP)
 
-# Block with mixture of KroneckerOperators and ndarrays
-N11 = E
-N12 = np.ones((5 * 6, 5))
-N21 = np.random.normal(size=(5, 5 * 6))
-N22 = np.eye(5)
+# Create a block of pure KroneckerOperators
+KB1 = KroneckerBlock([[KP, KD], 
+                      [KI, KS]])
 
-N = KroneckerBlock([[N11, N12], 
-                    [N21, N22]])
-
-print(N @ np.random.normal(size=5 * 6 + 5))
+x1 = np.random.normal(size=5 * 6 * 2)
+print(KB1 @ x1)
 ```
 
+We can also create block operators that contain a mixture of `KroneckerOperator`s and NumPy arrays
+
+```python
+# Create a block with a mixture of KroneckerOperators and ndarrays
+
+M11 = KP
+M12 = np.ones((5 * 6, 5))
+M21 = np.random.normal(size=(5, 5 * 6))
+M22 = np.eye(5)
+
+KB2 = KroneckerBlock([[M11, M12], 
+                      [M21, M22]])
+
+x2 = np.random.normal(size=5 * 6 + 5)
+print(KB2 @ x2)
+
+```
+ 
 Block diagonal matrices can also be created in a similar way 
 
 ```python
 from pykronecker import KroneckerBlockDiag
 
-J = KroneckerBlockDiag([E, F])
-print(M @ np.random.normal(size=5 * 6 * 2))
+KBD = KroneckerBlockDiag([KP, KS])
+
+x3 = np.random.normal(size=5 * 6 * 2)
+print(KBD @ x3)
 ```
 
 
@@ -150,38 +218,72 @@ print(M @ np.random.normal(size=5 * 6 * 2))
 For operators that are products of `KroneckerProduct`s, `KroneckerDiag`s, or `KroneckerIdentity`s, we can find the inverse with `.inv()`.
 
 ```python
-H = (C @ E).inv()
-print(H @ x)
+import numpy as np
+from pykronecker import *
+
+A = np.random.normal(size=(5, 5))
+B = np.random.normal(size=(6, 6))
+D = np.random.normal(size=(5, 6))
+x = np.random.normal(size=5 * 6)
+
+KP = KroneckerProduct([A, B])
+KS = KroneckerSum([A, B])
+KD = KroneckerDiag(D)
+KI = KroneckerIdentity(like=KP)
+
+# find the inverse
+M = (KP @ KD).inv()
+print(M @ x)
 ```
 
-Summing down an axis or over the whole matrix is supported.
+Summing down an axis or over the whole matrix is supported for any opertor.
 
 ```python
-print(F.sum(0))
-print(F.sum(1))
-print(F.sum())
+M = KP.T + KS @ KD
+
+print(M.sum(0))
+print(M.sum(1))
+print(M.sum())
 ```
 
-As is conversion to a literal array 
+Any operator can also be converted to a literal array. This should only be used for small test purposes, as the arrays created can be very large. 
 
 ```python
-print(H.to_array())
+print(M.to_array())
 ```
 
-Element-wise power operation can be used with `**`
-
-```python
-print(C ** 2)
-```
-
-The matrix diagonal can be found with `.diag()`
+The matrix diagonal of any operator can be found with `.diag()`. This returns a one-dimensional array. 
 
 ```python
 print(C.diag())
 ```
 
-Th conjugate transpose with `.H`
+The conjugate transpose of any complex operator can be found with `.H`
 
 ```python
-print(C.H)
+
+A_ = np.random.normal(size=(5, 5)) + (1j) * np.random.normal(size=(5, 5))
+B_ = np.random.normal(size=(6, 6)) + (1j) * np.random.normal(size=(6, 6))
+
+KP_ = KroneckerProduct([A_, B_])
+
+print(KP_.H @ x)
+```
+
+## Use with JAX
+
+Operators and tensors can also be created from Jax arrays for accelerated computation when the `pykronecker[jax]` extra has been installed. Note that this is only available on Linux and MacOS.  
+
+```python
+import numpy as np
+import jax.numpy as jnp
+from pykronecker import KroneckerProduct
+
+A = jnp.asarray(np.random.normal(size=(5, 5)))
+B = jnp.asarray(np.random.normal(size=(6, 6)))
+x = jnp.asarray(np.random.normal(size=5 * 6))
+
+KP = KroneckerProduct([A, B])
+
+print(KP @ x)
 ```
