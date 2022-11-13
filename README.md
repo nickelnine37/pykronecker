@@ -252,10 +252,10 @@ Any operator can also be converted to a literal array. This should only be used 
 print(M.to_array())
 ```
 
-The matrix diagonal of any operator can be found with `.diag()`. This returns a one-dimensional array. 
+The matrix diagonal of most operators can be found with `.diag()`. This returns a one-dimensional array. 
 
 ```python
-print(C.diag())
+print(M.diag())
 ```
 
 The conjugate transpose of any complex operator can be found with `.H`
