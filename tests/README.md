@@ -4,17 +4,19 @@ In order to run tests for PyKronecker, the requirements listed in the `requireme
 
 ## Testing with PyTest
 
-Once the required packages have been installed, a simple test can be performed by running the command 
+Once the required packages have been installed, the tests can be performed by running the command 
 
 ```
 pytest
 ```
 
-in the root folder. This will generate a coverage report which can be found in the `htmlcov` folder. To view it run
+in the root folder. This will generate a coverage report which can be found in the `htmlcov` directory. To view it run
 
 ```
 cd htmlcov && python -m http.server
 ```
+
+and open the localhost link in a browser.
 
 ## Testing with Tox
 
@@ -24,7 +26,7 @@ To test PyKronecker in a clean environment for all python versions from 3.6-3.10
 tox
 ```
 
-in the root folder. Note that this takes significantly longer to run, so is best performed as a final check. 
+in the root directory. Note that this takes significantly longer to run, so is best performed as a final check. 
 
 ## Testing with GitHub actions
 

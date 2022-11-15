@@ -262,8 +262,8 @@ The conjugate transpose of any complex operator can be found with `.H`
 
 ```python
 
-A_ = np.random.normal(size=(5, 5)) + (1j) * np.random.normal(size=(5, 5))
-B_ = np.random.normal(size=(6, 6)) + (1j) * np.random.normal(size=(6, 6))
+A_ = np.random.normal(size=(5, 5)) + 1j * np.random.normal(size=(5, 5))
+B_ = np.random.normal(size=(6, 6)) + 1j * np.random.normal(size=(6, 6))
 
 KP_ = KroneckerProduct([A_, B_])
 
