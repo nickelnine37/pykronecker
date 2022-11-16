@@ -118,6 +118,88 @@ class KroneckerOperator(ABC):
     # ----------- CONCRETE METHODS ----------
     # These define shared and default behaviours
 
+    def __getitem__(self, item: Union[int, tuple, slice]):
+        """
+        Add support for indexing a KroneckerOperator. Note that fancy indexing is not supported.
+
+        Examples:
+            KP = KroneckerProduct([A, B])
+
+            print(KP[0])
+            print(KP[2:5])
+            print(KP[2:8:3])
+            print(KP[:, 2])
+            print(KP[:, 2:5])
+            print(KP[:, 2:8:3])
+            print(KP[2:5, 2:8:3])
+            print(KP[:])
+            print(KP[:, :])
+        """
+
+        def get_one(index: int, row=True) -> ndarray:
+            """
+            Get a single row or column
+            """
+            x = np.zeros(self.shape[0])
+            x[index] = 1.0
+            if row:
+                return self.T @ x
+            else:
+                return self @ x
+
+        def get_many(index_slice: slice, row=True) -> ndarray:
+            """
+            Get multiple rows or columns
+            """
+
+            indices = list(range(*index_slice.indices(self.shape[0])))
+            x = np.zeros((self.shape[0], len(indices)))
+            x[indices, range(len(indices))] = 1
+            if row:
+                return (self.T @ x).T
+            else:
+                return self @ x
+
+        # get a single row
+        if isinstance(item, int):
+            return get_one(item, row=True)
+
+        # get many rows
+        if isinstance(item, slice):
+            return get_many(item, row=True)
+
+        # multi-indexing
+        if isinstance(item, tuple):
+
+            # operator is 2-dimensional...
+            if len(item) > 2:
+                raise IndexError(f'too many indices for array: operator is 2-dimensional, but {len(item)} were indexed')
+
+            # get a single row
+            if len(item) == 1:
+                return get_one(item[0], row=True)
+
+            # get a single element
+            if isinstance(item[0], int) and isinstance(item[1], int):
+                return get_one(item[1], row=False)[item[0]]
+
+            # get a slice of a row
+            if isinstance(item[0], int) and isinstance(item[1], slice):
+                return get_one(item[0], row=True)[item[1]]
+
+            # get a slice of a column
+            if isinstance(item[0], slice) and isinstance(item[1], int):
+                return get_one(item[1], row=False)[item[0]]
+
+            # get a slice of both
+            if isinstance(item[0], slice) and isinstance(item[1], slice):
+                return get_many(item[1], row=False)[item[0]]
+
+            else:
+                raise IndexError(f'Could not interpret indices. Got [{type(item[0])}, {type(item[1])}]. Expected both to be either and int or slice')
+
+        raise IndexError(f'Could not interpret index type. Got {type(item)}. Expected int, slice or tuple')
+
     def __add__(self, other: 'KroneckerOperator') -> 'KroneckerOperator':
         """
         Overload the addition method. This is used to sum together KroneckerOperators and as such
