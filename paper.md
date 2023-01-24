@@ -16,9 +16,9 @@ authors:
   - name: Michael Chantler
     affiliation: 1
 affiliations:
- - name: Heriot-Watt University, UK
+ - name: Heriot-Watt University, United Kingdom
    index: 1
- - name: University of California Santa Barbara, USA
+ - name: University of California Santa Barbara, United States of America
    index: 2
 date: 27 September 2022
 bibliography: paper.bib

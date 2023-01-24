@@ -1,5 +1,6 @@
 ![Logo](https://raw.githubusercontent.com/nickelnine37/pykronecker/main/assets/logo.png)
 
+[![DOI](https://zenodo.org/badge/526218934.svg)](https://zenodo.org/badge/latestdoi/526218934)
 ![Tests](https://github.com/nickelnine37/pykronecker/actions/workflows/tests.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/nickelnine37/pykronecker/badge.svg)](https://coveralls.io/github/nickelnine37/pykronecker)
 [![Documentation Status](https://readthedocs.org/projects/pykronecker/badge/?version=latest)](https://pykronecker.readthedocs.io/en/latest/?badge=latest)
