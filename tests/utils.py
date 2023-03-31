@@ -150,6 +150,63 @@ def assert_conversions(literal: ndarray, optimised: KroneckerOperator):
     assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(literal.shape):.4e}. literal = {a.ravel()}, optimised = {b.ravel()}'
 
 
+def assert_indexing(literal: ndarray, optimised: KroneckerOperator):
+    """
+    Assert all supported indexing functions work
+    """
+
+    a, b = optimised[2], literal[2]
+    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / literal.shape[0]:.4e}. literal = {a.ravel()}, optimised = {b.ravel()}'
+
+    a, b = optimised[(2,)], literal[(2, )]
+    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / literal.shape[0]:.4e}. literal = {a.ravel()}, optimised = {b.ravel()}'
+
+    a, b = optimised[2:5], literal[2:5]
+    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / literal.shape[0]:.4e}. literal = {a.ravel()}, optimised = {b.ravel()}'
+
+    a, b = optimised[2:8:3], literal[2:8:3]
+    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / literal.shape[0]:.4e}. literal = {a.ravel()}, optimised = {b.ravel()}'
+
+    a, b = optimised[:, 2], literal[:, 2]
+    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / literal.shape[0]:.4e}. literal = {a.ravel()}, optimised = {b.ravel()}'
+
+    a, b = optimised[:, 2:5], literal[:, 2:5]
+    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / literal.shape[0]:.4e}. literal = {a.ravel()}, optimised = {b.ravel()}'
+
+    a, b = optimised[:, 2:8:3], literal[:, 2:8:3]
+    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / literal.shape[0]:.4e}. literal = {a.ravel()}, optimised = {b.ravel()}'
+
+    a, b = optimised[2, :], literal[2, :]
+    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / literal.shape[0]:.4e}. literal = {a.ravel()}, optimised = {b.ravel()}'
+
+    a, b = optimised[2:5, :], literal[2:5, :]
+    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / literal.shape[0]:.4e}. literal = {a.ravel()}, optimised = {b.ravel()}'
+
+    a, b = optimised[2:8:3, :], literal[2:8:3, :]
+    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / literal.shape[0]:.4e}. literal = {a.ravel()}, optimised = {b.ravel()}'
+
+    a, b = optimised[2:5, 2:8:3], literal[2:5, 2:8:3]
+    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / literal.shape[0]:.4e}. literal = {a.ravel()}, optimised = {b.ravel()}'
+
+    a, b = optimised[2, 5], literal[2, 5]
+    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / literal.shape[0]:.4e}. literal = {a.ravel()}, optimised = {b.ravel()}'
+
+    a, b = optimised[:], literal[:]
+    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / literal.shape[0]:.4e}. literal = {a.ravel()}, optimised = {b.ravel()}'
+
+    a, b = optimised[:, :], literal[:, :]
+    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / literal.shape[0]:.4e}. literal = {a.ravel()}, optimised = {b.ravel()}'
+
+    with pytest.raises(IndexError):
+        optimised[2, 3, 4]
+
+    with pytest.raises(IndexError):
+        optimised['hey']
+
+    with pytest.raises(IndexError):
+        optimised['a', 'b']
+
+
 def assert_basic_fails(optimised: KroneckerOperator):
 
     with pytest.raises(TypeError):
@@ -341,6 +398,7 @@ def assert_universal(X: ndarray, P: ndarray, literal: ndarray, optimised: Kronec
 
     # basic functionality
     assert_conversions(literal, optimised)
+    assert_indexing(literal, optimised)
     assert_str(optimised)
     assert_copy(literal, optimised)
     assert_basic_fails(optimised)

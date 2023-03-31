@@ -56,7 +56,19 @@ class KroneckerBlockBase(KroneckerOperator, ABC):
         Check the blocks, which are provided as input to KroneckerBlock and KroneckerBlockDiag are consistent
         """
 
-        ndim = np.asarray(blocks, dtype='object').ndim
+        def replace(items):
+            """
+            Turn into a block of stings, so we can use numpy.block
+            """
+            out = []
+            for item in items:
+                if isinstance(item, (list, tuple)):
+                    out.append(replace(item))
+                else:
+                    out.append('a')
+            return out
+
+        ndim = np.block(replace(blocks)).ndim
 
         if ndim == 1:
             assert all(hasattr(block, 'shape') for block in blocks)

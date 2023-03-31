@@ -237,26 +237,41 @@ M = (KP @ KD).inv()
 print(M @ x)
 ```
 
+Basic indexing is supported for all operators. This will return literal numpy arrays. [Advanced indexing](https://numpy.org/doc/stable/user/basics.indexing.html#advanced-indexing) is not supported.
+
+```python
+J = KP.T + KS @ KD
+
+print(J[0])
+print(J[2:5])
+print(J[2:8:3])
+print(J[:, 2])
+print(J[:, 2:5])
+print(J[:, 2:8:3])
+print(J[2, 5])
+print(J[2:5, 2:8:3])
+print(J[:])
+print(J[:, :])
+```
+
 Summing down an axis or over the whole matrix is supported for any opertor.
 
 ```python
-M = KP.T + KS @ KD
-
-print(M.sum(0))
-print(M.sum(1))
-print(M.sum())
+print(J.sum(0))
+print(J.sum(1))
+print(J.sum())
 ```
 
 Any operator can also be converted to a literal array. This should only be used for small test purposes, as the arrays created can be very large. 
 
 ```python
-print(M.to_array())
+print(J.to_array())
 ```
 
 The matrix diagonal of most operators can be found with `.diag()`. This returns a one-dimensional array. 
 
 ```python
-print(M.diag())
+print(J.diag())
 ```
 
 The conjugate transpose of any complex operator can be found with `.H`
