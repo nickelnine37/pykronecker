@@ -5,10 +5,16 @@ from typing import Callable, List, Union
 import numpy as np
 from numpy import ndarray
 
+
+
 from pykronecker.base import KroneckerOperator
 from pykronecker.composite import OperatorSum
 from pykronecker.utils import numeric
 
+try:
+    import jax.numpy as jnp
+except ImportError:
+    import numpy as jnp
 
 class KroneckerBlockBase(KroneckerOperator, ABC):
     """
@@ -133,29 +139,14 @@ class KroneckerBlock(KroneckerBlockBase):
     def operate(self, other: ndarray) -> ndarray:
 
         x = other.squeeze()
-        dtype = np.result_type(self.dtype, x)
 
         if x.shape[0] != len(self):
             raise ValueError(f'other\'s first dimension should have length {len(self)} to match the dimensions of the operator, but it has length {x.shape[0]}')
 
-        if x.ndim == 1:
-
-            out = [np.zeros_like(x[n1:n2], dtype=dtype) for n1, n2 in self.iter_edges()]
-            blocks = [x[n1:n2] for n1, n2 in self.iter_edges()]
-
-        elif x.ndim == 2:
-
-            out = [np.zeros_like(x[n1:n2, :], dtype=dtype) for n1, n2 in self.iter_edges()]
-            blocks = [x[n1:n2, :] for n1, n2 in self.iter_edges()]
-
-        else:
+        if x.ndim not in [1, 2]:
             raise ValueError(f'other must be 1 or 2d but it is {other.ndim}d')
-
-        for i in range(self.n_blocks):
-            for j in range(self.n_blocks):
-                out[i] += self.blocks[i][j] @ blocks[j]
-
-        return self.factor * np.concatenate(out, axis=0)
+ 
+        return self.factor * jnp.concatenate([sum(self.blocks[i][j] @ x[n1:n2] for j, (n1, n2) in enumerate(self.iter_edges())) for i in range(self.n_blocks)], axis=0)
 
     def __mul__(self, other: Union['KroneckerOperator', numeric]) -> KroneckerOperator:
 
