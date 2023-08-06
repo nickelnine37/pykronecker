@@ -79,7 +79,7 @@ def test_block_diag():
                     x = np.concatenate([vec(X), vec(Y)])
                     Q = np.concatenate([P, P], axis=0)
                     d = np.concatenate([vec(X), vec(Y), np.random.randn(5)])
-                    D = np.concatenate([P, P,  np.random.randn(5, 5)], axis=0)
+                    D = np.concatenate([P, P,  np.random.randn(5, P.shape[1])], axis=0)
 
                     kb_literal1 = np.block([[kp_literal, kd_literal], [np.zeros(kp_literal.shape), ks_literal]])
                     kb_optimised1 = KroneckerBlock([[kp_optimised, kd_optimised], [np.zeros(kp_literal.shape), ks_optimised]])
