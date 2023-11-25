@@ -30,8 +30,10 @@ D = jnp.asarray(np.random.normal(size=Ns))
 
 A = KroneckerProduct(As) @ KroneckerSum(Bs) + KroneckerDiag(D)
 
+
 def f(x):
     return x.T @ A @ x
+
 
 df = grad(f)
 

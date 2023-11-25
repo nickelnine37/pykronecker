@@ -2,7 +2,7 @@
 
 Many basic algebraic operations can be performed on a pair of [`KroneckerOperator`](../../api/kroneckeroperator)s. Doing so will create a new composite operator. 
 
-For example, two or more operators can be added or subtracted from one another. 
+For example, two or more operators can be added or subtracted from one another.
 
 ```python
 import numpy as np

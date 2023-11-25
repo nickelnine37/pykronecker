@@ -13,7 +13,7 @@ The figure below compares some of the compute times for the vanilla version of P
 
 ## Using Jax arrays with PyKronecker
 
-Once you have Jax installed into your environment, Jax arrays can be used more or less in place of NumPy arrays. 
+Once you have Jax installed into your environment, Jax arrays can be used more or less in place of NumPy arrays.
 
 ```python 
 import jax

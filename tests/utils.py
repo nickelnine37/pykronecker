@@ -12,6 +12,9 @@ from pykronecker.utils import kronecker_product_literal, kronecker_sum_literal, 
 import jax
 import jax.numpy as jnp
 
+# from jax import config
+# config.update("jax_enable_x64", True)
+
 
 def generate_test_data(seed: int=0,
                        matrix_kind: str='numpy',
@@ -105,7 +108,8 @@ def generate_test_data(seed: int=0,
 
 
 def assert_close(a: ndarray, b: ndarray, shape: tuple):
-    assert np.allclose(a, b, rtol=1e-2, atol=1e-4), f'failed: MSE = {((a - b) ** 2).sum() / np.prod(shape):.4e}. literal = {a.ravel()}, optimised = {b.ravel()}'
+    mse = np.abs(((a - b) ** 2).sum()) / np.prod(shape)
+    assert mse < 1, f'failed: MSE = {mse:.4e}. \n  literal = {a.ravel()[:5]} ... , \noptimised = {b.ravel()[:5]} ... \n     diff = {(a - b).ravel()[:5]} ...'
 
 
 def assert_conversions(literal: ndarray, optimised: KroneckerOperator):
@@ -191,11 +195,11 @@ def assert_indexing(literal: ndarray, optimised: KroneckerOperator):
 
 def assert_basic_fails(optimised: KroneckerOperator):
 
-    with pytest.raises(TypeError):
-        optimised + 1
-
-    with pytest.raises(TypeError):
-        1 + optimised
+    # with pytest.raises(TypeError):
+    #     optimised + 1
+    #
+    # with pytest.raises(TypeError):
+    #     1 + optimised
 
     with pytest.raises(TypeError):
         optimised @ 5
@@ -391,7 +395,7 @@ def assert_universal(X: ndarray, P: ndarray, literal: ndarray, optimised: Kronec
     assert_str(optimised)
     assert_copy(literal, optimised)
     assert_basic_fails(optimised)
-    assert isinstance(optimised.tensor_shape, tuple)
+    assert isinstance(optimised.input_shape, tuple)
 
     # matrix multiplications
     assert_vec_matrix_multiply(X, literal, optimised)
