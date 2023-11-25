@@ -28,19 +28,18 @@ This abstraction can be used indefinitely to create higher and higher order comp
 
 class CompositeOperator(KroneckerOperator, ABC):
     """
-    This is an abstract class grouping together the proceeding two composite operators.md.
+    This is an abstract class grouping together the proceeding two composite operators.
     """
 
     def __init__(self, A: KroneckerOperator, B: KroneckerOperator):
         """
-        Initialise a general composite operator takes two consistent operators.md A and B
+        Initialise a general composite operator takes two consistent operators A and B
         """
-
-        self.check_operators_consistent(A, B)
         self.A = A
         self.B = B
-        self.shape = self.A.shape
-        self.tensor_shape = A.tensor_shape
+        self.shape = (A.shape[0], B.shape[1])
+        self.input_shape = B.input_shape
+        self.output_shape = A.output_shape
         self.dtype = np.result_type(A.dtype, B.dtype)
     
     def __copy__(self) -> 'CompositeOperator':
@@ -69,6 +68,7 @@ class OperatorSum(CompositeOperator):
         """
         Create an OperatorSum: C = A + B
         """
+        assert self.operators_consistent_for_addition(A, B)
         super().__init__(A, B)
 
     def operate(self, other: ndarray) -> ndarray:
@@ -108,6 +108,7 @@ class OperatorProduct(CompositeOperator):
         """
         Create an OperatorSum: C = A + B
         """
+        assert self.operators_consistent_for_multiplication(A, B)
         super().__init__(A, B)
 
     def operate(self, other: ndarray) -> ndarray:
@@ -124,7 +125,10 @@ class OperatorProduct(CompositeOperator):
         return self.factor * self.A.to_array() @ self.B.to_array()
 
     def diag(self) -> ndarray:
-        return self.factor * (self.A.T * self.B).sum(0)
+        if self.input_shape == self.output_shape:
+            return self.factor * (self.A.T * self.B).sum(0)
+        else:
+            raise ValueError('Cannot take diagonal of non-square operator')
 
     def __repr__(self) -> str:
         return 'OperatorProduct({}, {})'.format(self.A.__repr__(), self.B.__repr__())

@@ -15,7 +15,7 @@ The [`KroneckerProduct`](../../api/kroneckerproduct) class is used to represent 
 $$
 \mathbf{A} = \mathbf{A}^{(1)} \otimes \mathbf{A}^{(2)} \otimes \;\dots \; \otimes \mathbf{A}^{(n)} = \bigotimes_{i=1}^n \mathbf{A}^{(i)}
 $$
-It is instantiated by passing a sequence of square arrays containing real or complex-valued entries. 
+It is instantiated by passing a sequence of square arrays containing real or complex-valued entries.
 
 ```python
 import numpy as np

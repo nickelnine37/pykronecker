@@ -35,7 +35,7 @@ The concept of this library is to create instances of a `KroneckerOperator` clas
 
 ### KroneckerProduct
 
-Create a `KroneckerProduct` from two or more square NumPy/Jax arrays. These can be real or complex valued. 
+Create a `KroneckerProduct` from two or more square NumPy/Jax arrays. These can be real or complex valued.
 
 ```python
 import numpy as np
@@ -112,7 +112,7 @@ assert np.allclose(KI2 @ x, x)
 
 ## Deriving new operators
 
-All four of these objects can be added or multiplied together arbitrarily to create new composite operators. In this way, they can be treated similarly to literal NumPy arrays. 
+All four of these objects can be added or multiplied together arbitrarily to create new composite operators. In this way, they can be treated similarly to literal NumPy arrays.
 
 ```python
 import numpy as np
@@ -161,7 +161,7 @@ print(new_operator4 @ x)
 
 ## Block operators
 
-Block operators are composed of smaller operators which have been stacked into a set of blocks. In the example below, we create a new block operator `KB` which is composed of four other block operators. 
+Block operators are composed of smaller operators which have been stacked into a set of blocks. In the example below, we create a new block operator `KB` which is composed of four other block operators.
 
 ```python
 import numpy as np
@@ -177,7 +177,7 @@ KD = KroneckerDiag(D)
 KI = KroneckerIdentity(like=KP)
 
 # Create a block of pure KroneckerOperators
-KB1 = KroneckerBlock([[KP, KD], 
+KB1 = KroneckerBlock([[KP, KD],
                       [KI, KS]])
 
 x1 = np.random.normal(size=5 * 6 * 2)
@@ -288,7 +288,7 @@ print(KP_.H @ x)
 
 ## Use with JAX
 
-Operators and tensors can also be created from Jax arrays for accelerated computation when the `pykronecker[jax]` extra has been installed. Note that this is only available on Linux and MacOS.  
+Operators and tensors can also be created from Jax arrays for accelerated computation when the `pykronecker[jax]` extra has been installed. Note that this is only available on Linux and MacOS.
 
 ```python
 import numpy as np

@@ -32,8 +32,9 @@ class KroneckerOperator(ABC):
 
     __array_priority__ = 10             # increase priority of class, so it takes precedence when mixing matrix multiplications with ndarrays
     factor: numeric = 1.0               # a scalar factor multiplying the whole operator
-    shape: tuple[int, int] = (0, 0)     # full (N, N) operator shape
-    tensor_shape: tuple = None          # the expected shape of tensors this operator acts on
+    shape: tuple[int, int] = (0, 0)     # full (N, M) operator shape
+    input_shape: tuple = None           # the shape of tensors this operator acts on
+    output_shape: tuple = None          # the shape of tensors this operator produces
     dtype = None                        # the dtype of the underlying matrices (or np.result_type if they differ)
 
     # ------------- ABSTRACT METHODS --------------
@@ -200,18 +201,21 @@ class KroneckerOperator(ABC):
 
         raise IndexError(f'Could not interpret index type. Got {type(item)}. Expected int, slice or tuple')
 
-    def __add__(self, other: 'KroneckerOperator') -> 'KroneckerOperator':
+    def __add__(self, other: Union['KroneckerOperator', numeric]) -> 'KroneckerOperator':
         """
         Overload the addition method. This is used to sum together KroneckerOperators and as such
         `other` must be an instance of a KroneckerOperator, and not an array or other numeric type.
         """
 
         from pykronecker.composite import OperatorSum
+        from pykronecker.operators import KroneckerOnes
 
-        if not isinstance(other, KroneckerOperator):
-            raise TypeError('Kronecker operators can only be added to other Kronecker operators')
+        if isinstance(other, KroneckerOperator):
+            return OperatorSum(self, other)
+        elif isinstance(other, (int, float, complex, np.number)):
+            return OperatorSum(self, other * KroneckerOnes(like=self))
 
-        return OperatorSum(self, other)
+        raise TypeError('Kronecker operators and numeric values can only be added to other Kronecker operators')
 
     def __radd__(self, other: 'KroneckerOperator') -> 'KroneckerOperator':
         """
@@ -371,16 +375,14 @@ class KroneckerOperator(ABC):
         Sum the operator along one axis as if it is a matrix. Or None for total sum.
         """
 
-        ones = np.ones(self.shape[0])
-
         if axis is None:
-            return ones @ self @ ones
+            return np.ones(self.shape[0]) @ self @ np.ones(self.shape[1])
 
         elif axis == 1 or axis == -1:
-            return self @ ones
+            return self @ np.ones(self.shape[1])
 
         elif axis == 0:
-            return self.T @ ones
+            return self.T @ np.ones(self.shape[0])
 
         else:
             raise ValueError('Axis should be -1, 0, 1 or None')
@@ -401,27 +403,34 @@ class KroneckerOperator(ABC):
     # group functions useful for subclasses
 
     @staticmethod
-    def check_operators_consistent(A: 'KroneckerOperator', B: 'KroneckerOperator') -> bool:
+    def operators_consistent_for_addition(A: 'KroneckerOperator', B: 'KroneckerOperator') -> bool:
         """
-        Check whether two KroneckerOperators are mutually compatible. I.e, check that they have the same shape.
+        Check whether two KroneckerOperators are consistent with addition as A + B
         """
-
-        assert all(isinstance(C, KroneckerOperator) for C in [A, B]), f'All operators in this chain must be consistent, but they have types {type(A)} and {type(B)} respectively'
-        assert A.shape == B.shape, f'All operators in this chain should have the same shape, but they have shapes {A.shape} and {B.shape} respectively'
-        assert A.tensor_shape == B.tensor_shape, f'All operators in this chain should act on tensors of the same shape, but they act on {A.tensor_shape} and {B.tensor_shape} respectively'
+        assert isinstance(A, KroneckerOperator) and isinstance(B, KroneckerOperator), f'All operators in this chain must be consistent, but they have types {type(A)} and {type(B)} respectively'
+        assert A.input_shape == B.input_shape, f'All operators in this chain should must act on tenors of the same dimensions, but they act on {A.input_shape} and {B.input_shape} respectively'
+        assert A.output_shape == B.output_shape, f'All operators in this chain should must produce tenors of the same dimensions, but they produce {A.input_shape} and {B.input_shape} respectively'
 
         return True
 
     @staticmethod
-    def check_valid_matrices(As: List[ndarray]) -> bool:
+    def operators_consistent_for_multiplication(A: 'KroneckerOperator', B: 'KroneckerOperator') -> bool:
         """
-        Check whether As contains a list of square ndarrays suitable for use in
-        either a Kronecker product or a Kronecker sum
+        Check whether two KroneckerOperators are consistent with multiplication as A @ B
         """
-
-        # assert all(isinstance(A, ndarray) for A in As)
-        # code may be compatible with scipy sparse matrices...
-        assert all(A.ndim == 2 for A in As)
-        assert all(A.shape[0] == A.shape[1] for A in As)
+        assert isinstance(A, KroneckerOperator) and isinstance(B, KroneckerOperator), f'All operators in this chain must be consistent, but they have types {type(A)} and {type(B)} respectively'
+        assert A.input_shape == B.output_shape, f'The operators in this chain have inconsistent dimensions: {A.input_shape} != {B.output_shape}'
 
         return True
+
+    # @staticmethod
+    # def check_valid_matrices(As: List[ndarray]) -> bool:
+    #     """
+    #     Check whether As contains a list of square ndarrays suitable for use in
+    #     either a Kronecker product or a Kronecker sum
+    #     """
+    #
+    #     assert all(A.ndim == 2 for A in As)
+    #     assert all(A.shape[0] == A.shape[1] for A in As)
+    #
+    #     return True

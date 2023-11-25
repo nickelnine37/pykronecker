@@ -12,6 +12,10 @@ from utils import assert_universal, generate_test_data, assert_pow, assert_pow_f
 from pykronecker import KroneckerProduct, KroneckerDiag, KroneckerSum, KroneckerIdentity
 
 
+# from jax import config
+# config.update("jax_enable_x64", True)
+
+
 def test_operators():
 
     print('RUNNING')

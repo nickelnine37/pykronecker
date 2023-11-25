@@ -47,7 +47,7 @@ M12 = KroneckerIdentity(tensor_shape=Ns)
 M21 = KroneckerIdentity(tensor_shape=Ns)
 M22 = KroneckerSum(Bs)
 
-M = KroneckerBlock([[M11, M12], 
+M = KroneckerBlock([[M11, M12],
                     [M21, M22]])
 
 x = np.random.normal(size=20 * 30 * 40 * 2)

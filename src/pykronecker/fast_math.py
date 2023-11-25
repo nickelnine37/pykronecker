@@ -27,9 +27,9 @@ def kronecker_product_tensor(As: List[ndarray], X: ndarray):
     out = X
 
     for A in As:
-        out = (A @ out.reshape(A.shape[0], -1)).T
+        out = (A @ out.reshape(A.shape[1], -1)).T
 
-    return out.reshape(X.shape)
+    return out.reshape(*[A.shape[0] for A in As])
 
 
 def kronecker_product_vector(As: List[ndarray], X: ndarray, shape: tuple):
@@ -59,8 +59,6 @@ def kronecker_sum_tensor(As: List[ndarray], X: ndarray):
     """
     Apply the Kronecker sum of square matrices As to tensor X
     """
-    # return sum((A @ X.transpose(np.roll(range(3), -i)).reshape(A.shape[0], -1)).reshape(np.array(X.shape)[np.roll(range(3), -i)]).transpose(np.roll(range(3), i)) for i, A in enumerate(As))
-    # ^ avoids tensordot but not as fast
     return sum(mod.tensordot(A, X, axes=[[1], [i]]).transpose(get_trans(i, len(As))) for i, A in enumerate(As))
 
 
@@ -68,7 +66,6 @@ def kronecker_sum_vector(As: List[ndarray], X: ndarray, shape: tuple):
     """
     Apply the Kronecker sum of square matrices As to vector X
     """
-
     return kronecker_sum_tensor(As, X.reshape(shape)).ravel()
 
 
@@ -76,7 +73,6 @@ def kronecker_sum_vector_columns(As: List[ndarray], X: ndarray, shape: tuple):
     """
     Apply the Kronecker sum of square matrices As to matrix of vector columns X
     """
-
     return mod.vstack([kronecker_sum_vector(As, X[:, j], shape) for j in range(X.shape[1])]).T
 
 
@@ -127,23 +123,23 @@ def multiply_tensor_product(As: List[ndarray], X: ndarray) -> ndarray:
     Q = multiply_tensor_product(As, P)
     """
 
-    shape = tuple(A.shape[0] for A in As)
-    N = int(np.prod(shape))
+    input_shape = tuple(A.shape[1] for A in As)
+    N = int(np.prod(input_shape))
 
     # regular tensor
-    if X.shape == shape:
+    if X.shape == input_shape:
         return kronecker_product_tensor(As, X)
 
     # regular vector
     elif X.squeeze().shape == (N,):
-        return kronecker_product_vector(As, X, shape)
+        return kronecker_product_vector(As, X, shape=input_shape)
 
     # matrix of vector columns
     elif X.ndim == 2 and X.shape[0] == N:
-        return kronecker_product_vector_columns(As, X, shape)
+        return kronecker_product_vector_columns(As, X, shape=input_shape)
 
     else:
-        raise ValueError(f'X should have shape {shape} or {(N,)} to match the dimensions of As, but it has shape {X.shape}')
+        raise ValueError(f'X should have shape {input_shape} or {(N,)} to match the dimensions of As, but it has shape {X.shape}')
 
 
 def multiply_tensor_sum(As: List[ndarray], X: ndarray) -> ndarray:
@@ -164,26 +160,26 @@ def multiply_tensor_sum(As: List[ndarray], X: ndarray) -> ndarray:
     Q = multiply_tensor_sum(As, P)
     """
 
-    shape = tuple(A.shape[0] for A in As)
-    N = int(np.prod(shape))
+    input_shape = tuple(A.shape[1] for A in As)
+    N = int(np.prod(input_shape))
 
     # regular tensor
-    if X.shape == shape:
+    if X.shape == input_shape:
         return kronecker_sum_tensor(As, X)
 
     # regular vector
     elif X.squeeze().shape == (N,):
-        return kronecker_sum_vector(As, X, shape)
+        return kronecker_sum_vector(As, X, shape=input_shape)
 
     # matrix of vector columns
     elif X.ndim == 2 and X.shape[0] == N:
-        return kronecker_sum_vector_columns(As, X, shape)
+        return kronecker_sum_vector_columns(As, X, shape=input_shape)
 
     else:
-        raise ValueError(f'X should have shape {shape} or {(N,)} to match the dimensions of As, but it has shape {X.shape}')
+        raise ValueError(f'X should have shape {input_shape} or {(N,)} to match the dimensions of As, but it has shape {X.shape}')
 
 
-def multiply_tensor_diag(A: ndarray, X: ndarray):
+def multiply_tensor_diag(A: ndarray, X: ndarray) -> ndarray:
     """
     Compute the result of applying a matrix with a diagonal given by the tensor A, to a tensor X.
     X can be a tensor of shape (N1, N2, ..., Nn), a vector of shape (N1 x N2 x ... x Nn, )
@@ -219,7 +215,7 @@ def multiply_tensor_diag(A: ndarray, X: ndarray):
         raise ValueError(f'X should have shape {A.shape} or {(N,)} to match the dimensions of A, but it has shape {X.shape}')
 
 
-def multiply_tensor_identity(shape: tuple, X: ndarray):
+def multiply_tensor_identity(tensor_shape: tuple, X: ndarray) -> ndarray:
     """
     Compute the result of applying the identity matrix to a tensor X.
     X can be a tensor of shape (N1, N2, ..., Nn), a vector of shape (N1 x N2 x ... x Nn, )
@@ -228,10 +224,35 @@ def multiply_tensor_identity(shape: tuple, X: ndarray):
     The main purpose of this simple function is for consistency, and to ensure X has the right shape
     """
 
-    N = shape[0]
+    N = int(np.prod(tensor_shape))
 
     if (int(np.prod(X.shape)) == N) or (X.squeeze().shape == (N,)) or (X.ndim == 2 and X.shape[0] == N):
         return X
 
     else:
         raise ValueError(f'The product of X.shape should be {(N,)}, but it has shape {X.shape}')
+
+
+def multiply_tensor_ones(input_shape: tuple, output_shape: tuple, X: ndarray) -> ndarray:
+    """
+    Compute the result of applying a matrix of ones to a tensor X.
+    X can be a tensor of shape (N1, N2, ..., Nn), a vector of shape (N1 x N2 x ... x Nn, )
+    or a matrix of shape (N1 x N2 x ... x Nn, [any]), The returned array will have the same shape as X.
+
+    The main purpose of this simple function is for consistency, and to ensure X has the right shape
+    """
+
+    N = int(np.prod(output_shape))
+    M = int(np.prod(input_shape))
+
+    if X.shape == input_shape:
+        return mod.full(output_shape, X.sum())
+
+    elif X.squeeze().shape == (M, ):
+        return mod.full((N, ), X.sum())
+
+    elif X.ndim == 2 and X.shape[0] == M:
+        return mod.full((N, X.shape[1]), X.sum(0))
+
+    else:
+        raise ValueError(f'The product of X.shape should be {(M,)}, but it has shape {X.shape}')

@@ -13,6 +13,8 @@ from utils import assert_universal, generate_test_data, assert_diag, assert_inv
 
 np.set_printoptions(precision=3, linewidth=500, threshold=500, suppress=True, edgeitems=5)
 
+# from jax import config
+# config.update("jax_enable_x64", True)
 
 def test_sum():
 

@@ -8,7 +8,7 @@ $$
 \mathbf{I} & \mathbf{B}^{(1)} \oplus \mathbf{B}^{(2)}
 \end{bmatrix}
 $$
-We can create a representation of this matrix using the [`KroneckerBlock`](../../api/kroneckerblock) class. 
+We can create a representation of this matrix using the [`KroneckerBlock`](../../api/kroneckerblock) class.
 
 ```python
 import numpy as np
@@ -24,7 +24,7 @@ M12 = KroneckerIdentity(tensor_shape=Ns)
 M21 = KroneckerIdentity(tensor_shape=Ns)
 M22 = KroneckerSum(Bs)
 
-M = KroneckerBlock([[M11, M12], 
+M = KroneckerBlock([[M11, M12],
                     [M21, M22]])
 ```
 
