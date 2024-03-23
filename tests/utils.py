@@ -1,21 +1,12 @@
 from __future__ import annotations
-from numpy import ndarray
 import numpy as np
 
 from pykronecker.base import KroneckerOperator
-from pykronecker import KroneckerProduct, KroneckerDiag, KroneckerSum
-from pykronecker.operators import KroneckerIdentity, KroneckerOnes
-from pykronecker.utils import kronecker_product_literal, kronecker_sum_literal, kronecker_diag_literal, vec, ten
-
-import jax
-import jax.numpy as jnp
+from pykronecker.utils import vec
 
 import unittest
-from itertools import product
+from typing import Optional, Tuple
 
-from typing import Literal, Optional, Tuple
-# from jax import config
-# config.update("jax_enable_x64", True)
 
 class BaseTestCases:
 
@@ -28,19 +19,18 @@ class BaseTestCases:
         shapes = [(2, 2), (3, 3), (4, 4)]
 
         A_opt: Optional[KroneckerOperator] = None
-        A_lit: Optional[np.ndarray | jnp.ndarray] = None
-        X_l: Optional[np.ndarray | jnp.ndarray] = None
-        X_r: Optional[np.ndarray | jnp.ndarray] = None
-        x_l: Optional[np.ndarray | jnp.ndarray] = None
-        x_r: Optional[np.ndarray | jnp.ndarray] = None
-        P_l: Optional[np.ndarray | jnp.ndarray] = None
-        P_r: Optional[np.ndarray | jnp.ndarray] = None
+        A_lit: Optional[np.ndarray] = None
+        X_l: Optional[np.ndarray] = None
+        X_r: Optional[np.ndarray] = None
+        x_l: Optional[np.ndarray] = None
+        x_r: Optional[np.ndarray] = None
+        P_l: Optional[np.ndarray] = None
+        P_r: Optional[np.ndarray] = None
 
         powers = [1.0, 3, 2.0, -1]
 
         def setUp(self):
             np.random.seed(0)
-
             self.A_opt, self.A_lit = self.get_operators()
             self.X_l, self.X_r = self.get_tensors()
             self.x_l, self.x_r = self.get_vectors()
@@ -54,8 +44,12 @@ class BaseTestCases:
                 A += 1j * np.random.random(size=shape).astype(np.complex128 if dtype == 'complex' else np.float32)
 
             if kind == 'jax':
-                return jnp.asarray(A)
-
+                try:
+                    import jax.numpy as jnp
+                    return jnp.asarray(A)
+                except ImportError:
+                    return A
+                
             return A
 
         def get_operators(self) -> Tuple[KroneckerOperator, np.ndarray]:

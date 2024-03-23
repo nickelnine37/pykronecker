@@ -2,10 +2,9 @@ from __future__ import annotations
 import numpy as np
 from numpy import ndarray
 from typing import List
-
+import sys
 
 try:
-    import jax.numpy as jnp
     from jax import jit
     import jax
     use_jax = True
@@ -16,7 +15,11 @@ except ImportError:
     print('Using NumPy backend')
 
 
-mod = jnp if use_jax else np
+def get_mod(X):
+    """ Get the module associated with an array """
+    if 'jax' in  X.__class__.__module__:
+        return sys.modules['jax.numpy']
+    return sys.modules['numpy']
 
 
 def kronecker_product_tensor(As: List[ndarray], X: ndarray):
@@ -43,7 +46,7 @@ def kronecker_product_vector_columns(As: List[ndarray], X: ndarray, shape: tuple
     """
     Apply the Kronecker product of square matrices As to matrix of vector columns X
     """
-    return mod.vstack([kronecker_product_vector(As, X[:, j], shape) for j in range(X.shape[1])]).T
+    return get_mod(X).vstack([kronecker_product_vector(As, X[:, j], shape) for j in range(X.shape[1])]).T
 
 
 def get_trans(i: int, n: int):
@@ -59,7 +62,7 @@ def kronecker_sum_tensor(As: List[ndarray], X: ndarray):
     """
     Apply the Kronecker sum of square matrices As to tensor X
     """
-    return sum(mod.tensordot(A, X, axes=[[1], [i]]).transpose(get_trans(i, len(As))) for i, A in enumerate(As))
+    return sum(get_mod(X).tensordot(A, X, axes=[[1], [i]]).transpose(get_trans(i, len(As))) for i, A in enumerate(As))
 
 
 def kronecker_sum_vector(As: List[ndarray], X: ndarray, shape: tuple):
@@ -73,7 +76,7 @@ def kronecker_sum_vector_columns(As: List[ndarray], X: ndarray, shape: tuple):
     """
     Apply the Kronecker sum of square matrices As to matrix of vector columns X
     """
-    return mod.vstack([kronecker_sum_vector(As, X[:, j], shape) for j in range(X.shape[1])]).T
+    return get_mod(X).vstack([kronecker_sum_vector(As, X[:, j], shape) for j in range(X.shape[1])]).T
 
 
 def kronecker_diag_tensor(A: ndarray, X: ndarray):
@@ -94,7 +97,7 @@ def kronecker_diag_vector_columns(A: ndarray, X: ndarray):
     """
     Apply the Kronecker diag of tensor A to vector X
     """
-    return mod.vstack([kronecker_diag_vector(A, X[:, j]) for j in range(X.shape[1])]).T
+    return get_mod(X).vstack([kronecker_diag_vector(A, X[:, j]) for j in range(X.shape[1])]).T
 
 
 # apply jit wrapper to all tensor functions
@@ -241,6 +244,8 @@ def multiply_tensor_ones(input_shape: tuple, output_shape: tuple, X: ndarray) ->
 
     The main purpose of this simple function is for consistency, and to ensure X has the right shape
     """
+
+    mod = get_mod(X)
 
     N = int(np.prod(output_shape))
     M = int(np.prod(input_shape))
