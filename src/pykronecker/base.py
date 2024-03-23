@@ -141,7 +141,7 @@ class KroneckerOperator(ABC):
             """
             Get a single row or column
             """
-            x = np.zeros(self.shape[0])
+            x = np.zeros(self.shape[int(~row)])
             x[index] = 1.0
             if row:
                 return self.T @ x
@@ -153,8 +153,8 @@ class KroneckerOperator(ABC):
             Get multiple rows or columns
             """
 
-            indices = list(range(*index_slice.indices(self.shape[0])))
-            x = np.zeros((self.shape[0], len(indices)))
+            indices = list(range(*index_slice.indices(self.shape[int(~row)])))
+            x = np.zeros((self.shape[int(~row)], len(indices)))
             x[indices, range(len(indices))] = 1
             if row:
                 return (self.T @ x).T
@@ -176,9 +176,9 @@ class KroneckerOperator(ABC):
             if len(item) > 2:
                 raise IndexError(f'too many indices for array: operator is 2-dimensional, but {len(item)} were indexed')
 
-            # get a single row
+            # effectively single indexing
             if len(item) == 1:
-                return get_one(item[0], row=True)
+                return self[item[0]]
 
             # get a single element
             if isinstance(item[0], int) and isinstance(item[1], int):
@@ -244,7 +244,7 @@ class KroneckerOperator(ABC):
             return new
 
         elif isinstance(other, KroneckerOperator):
-            raise TypeError('Only KroneckerProducts and KroneckerDiags can be multiplied together element-wise')
+            raise TypeError(f'Types {type(self).__name__} and {type(other).__name__} cannot be multiplied together element-wise')
 
         else:
             raise TypeError('General Kronecker operators can only be scaled by a number')
@@ -302,7 +302,7 @@ class KroneckerOperator(ABC):
 
             # we have a left-sided tensor multiplication
             if int(np.prod(other.shape)) == self.shape[0]:
-                return self.T @ np.squeeze(other)
+                return self.T @ other
 
             # we have a left sided data matrix multiplication
             else:

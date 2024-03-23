@@ -1,89 +1,175 @@
-from __future__ import annotations
-
-import numpy as np
+import unittest
 import sys
 import os
 
-from pykronecker import KroneckerProduct, KroneckerDiag
-
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
-import pytest
 
-from utils import assert_universal, generate_test_data, assert_diag, assert_inv
+from utils import BaseTestCases
 
-np.set_printoptions(precision=3, linewidth=500, threshold=500, suppress=True, edgeitems=5)
+from pykronecker import KroneckerProduct, KroneckerSum, KroneckerDiag, KroneckerIdentity, KroneckerOnes
+from pykronecker.utils import kronecker_product_literal, OperatorError, kronecker_sum_literal, kronecker_diag_literal
+import numpy as np
 
-# from jax import config
-# config.update("jax_enable_x64", True)
+class TestSum1(BaseTestCases.BaseTest):
 
-def test_sum():
+    def get_operators(self):
 
-    for matrix_kind in ['numpy', 'jax']:
-        for tensor_kind in ['numpy', 'jax']:
-            for tensor_type in ['real', 'complex']:
-                for matrix_type in ['real', 'complex']:
+        As = [self.get_array(shape, self.matrix_type, self.matrix_kind) for shape in self.shapes]
+        Bs = [self.get_array(shape, self.matrix_type, self.matrix_kind) for shape in self.shapes]
 
-                    X, Y, P, kp_literal, ks_literal, kd_literal, kp_optimised, ks_optimised, kd_optimised, ki_literal, ki_optimised = generate_test_data(matrix_type=matrix_type,
-                                                                                                                                                         tensor_type=tensor_type,
-                                                                                                                                                         matrix_kind=matrix_kind,
-                                                                                                                                                         tensor_kind=tensor_kind)
+        KP = KroneckerProduct(As)
+        KS = KroneckerSum(Bs)
 
-                    literal1 = kp_literal + ks_literal
-                    literal2 = kd_literal - ks_literal / 2
-                    literal3 = 2.5 * kp_literal + ks_literal / 3 + kd_literal
+        return KP + KS, kronecker_product_literal(As) + kronecker_sum_literal(Bs)
+    
+    def test_inv(self):
+        self.assertRaises(NotImplementedError, self.A_opt.inv)
 
-                    optimised1 = kp_optimised + ks_optimised
-                    optimised2 = kd_optimised - ks_optimised / 2
-                    optimised3 = 2.5 * kp_optimised + ks_optimised / 3 + kd_optimised
-
-                    for literal, optimised in zip([literal1, literal2, literal3], [optimised1, optimised2, optimised3]):
-
-                        assert_universal(X, P, literal, optimised)
-                        assert_diag(literal, optimised)
-
-                        with pytest.raises(NotImplementedError):
-                            optimised.inv()
-
-                        with pytest.raises(NotImplementedError):
-                            optimised ** 2
+    def test_pow(self):
+        self.assertRaises(NotImplementedError, lambda: self.A_opt ** 2)
 
 
-def test_product():
+class TestProduct1(BaseTestCases.BaseTest):
 
-    for matrix_kind in ['numpy', 'jax']:
-        for tensor_kind in ['numpy', 'jax']:
-            for tensor_type in ['real', 'complex']:
-                for matrix_type in ['real', 'complex']:
+    def get_operators(self):
 
-                    X, Y, P, kp_literal, ks_literal, kd_literal, kp_optimised, ks_optimised, kd_optimised, ki_literal, ki_optimised = generate_test_data(matrix_type=matrix_type,
-                                                                                                                                                         tensor_type=tensor_type,
-                                                                                                                                                         matrix_kind=matrix_kind,
-                                                                                                                                                         tensor_kind=tensor_kind)
+        As = [self.get_array(shape, self.matrix_type, self.matrix_kind) for shape in self.shapes]
+        Bs = [self.get_array(shape, self.matrix_type, self.matrix_kind) for shape in self.shapes]
 
-                    literal1 = kp_literal @ ks_literal
-                    literal2 = kd_literal @ ks_literal / 2
-                    literal3 = 2.5 * kp_literal @ ks_literal / 3 + kd_literal
+        KP = KroneckerProduct(As)
+        KS = KroneckerSum(Bs)
 
-                    optimised1 = kp_optimised @ ks_optimised
-                    optimised2 = kd_optimised @ ks_optimised / 2
-                    optimised3 = 2.5 * kp_optimised @ ks_optimised / 3 + kd_optimised
+        return KP @ KS, kronecker_product_literal(As) @ kronecker_sum_literal(Bs)
+    
+    def test_inv(self):
+        self.assertRaises(NotImplementedError, self.A_opt.inv)
 
-                    for literal, optimised in zip([literal1, literal2, literal3], [optimised1, optimised2, optimised3]):
-
-                        assert_universal(X, P, literal, optimised)
-                        assert_diag(literal, optimised)
-
-                        with pytest.raises(NotImplementedError):
-                            optimised ** 2
-
-                    # these should not return operator products
-                    assert isinstance(kp_optimised @ kp_optimised, KroneckerProduct)
-                    assert isinstance(kd_optimised @ kd_optimised, KroneckerDiag)
-
-                    # operator products can be inverted if all sub-operators are invertible
-                    assert_inv(2 * kd_literal @ kp_literal, 2 * kd_optimised @ kp_optimised)
+    def test_pow(self):
+        self.assertRaises(NotImplementedError, lambda: self.A_opt ** 2)
 
 
+class TestProduct2(BaseTestCases.BaseTest):
 
+    def get_operators(self):
+
+        As = [self.get_array(shape, self.matrix_type, self.matrix_kind) for shape in self.shapes]
+        Bs = [self.get_array(shape, self.matrix_type, self.matrix_kind) for shape in self.shapes]
+
+        KP1 = KroneckerProduct(As)
+        KP2 = KroneckerProduct(Bs)
+
+        return KP1 @ KP2, kronecker_product_literal(As) @ kronecker_product_literal(Bs)
+    
+
+class TestComposite1(BaseTestCases.BaseTest):
+
+    def get_operators(self):
+
+        As = [self.get_array(shape, self.matrix_type, self.matrix_kind) for shape in self.shapes]
+        Bs = [self.get_array(shape, self.matrix_type, self.matrix_kind) for shape in self.shapes]
+        D = self.get_array([shape[0] for shape in self.shapes], self.matrix_type, self.matrix_kind) 
+
+        KP = KroneckerProduct(As)
+        KS = KroneckerSum(Bs)
+        KD = KroneckerDiag(D)
+
+        return KP @ KS + KD, kronecker_product_literal(As) @ kronecker_sum_literal(Bs) + kronecker_diag_literal(D)
+    
+    def test_inv(self):
+        self.assertRaises(NotImplementedError, self.A_opt.inv)
+
+    def test_pow(self):
+        self.assertRaises(NotImplementedError, lambda: self.A_opt ** 2)
+
+
+class TestComposite2(BaseTestCases.BaseTest):
+
+    def get_operators(self):
+
+        As = [self.get_array(shape, self.matrix_type, self.matrix_kind) for shape in self.shapes]
+        Bs = [self.get_array(shape, self.matrix_type, self.matrix_kind) for shape in self.shapes]
+        D = self.get_array([shape[0] for shape in self.shapes], self.matrix_type, self.matrix_kind) 
+
+        KP = KroneckerProduct(As)
+        KS = KroneckerSum(Bs)
+        KD = KroneckerDiag(D)
+
+        return (KP + KS) @ (KD - KP), (kronecker_product_literal(As) + kronecker_sum_literal(Bs)) @ (kronecker_diag_literal(D) - kronecker_product_literal(As))
+    
+    def test_inv(self):
+        self.assertRaises(NotImplementedError, self.A_opt.inv)
+
+    def test_pow(self):
+        self.assertRaises(NotImplementedError, lambda: self.A_opt ** 2)
+
+    def test_diag(self):
+        self.assertRaises(TypeError, lambda: self.A_opt.diag())
+
+
+
+class TestComposite3(BaseTestCases.BaseTest):
+
+    def get_operators(self):
+
+        As = [self.get_array(shape, self.matrix_type, self.matrix_kind) for shape in self.shapes]
+
+        KP = KroneckerProduct(As)
+        KI = KroneckerIdentity(like=KP)
+
+        return KP + KI, kronecker_product_literal(As) + np.eye(KP.shape[0])
+    
+    def test_inv(self):
+        self.assertRaises(NotImplementedError, self.A_opt.inv)
+
+    def test_pow(self):
+        self.assertRaises(NotImplementedError, lambda: self.A_opt ** 2)
+
+
+class TestComposite4(BaseTestCases.BaseTest):
+
+    def get_operators(self):
+
+        As = [self.get_array(shape, self.matrix_type, self.matrix_kind) for shape in self.shapes]
+
+        KP = KroneckerProduct(As)
+        KI = KroneckerIdentity(like=KP)
+
+        return KP @ KI, kronecker_product_literal(As)
+
+
+class TestComposite5(BaseTestCases.BaseTest):
+
+    def get_operators(self):
+        As = [self.get_array(shape, self.matrix_type, self.matrix_kind) for shape in self.shapes]
+        KP = KroneckerProduct(As)
+        return KP + 1, kronecker_product_literal(As) + 1
+    
+    def test_inv(self):
+        self.assertRaises(NotImplementedError, self.A_opt.inv)
+
+    def test_pow(self):
+        self.assertRaises(NotImplementedError, lambda: self.A_opt ** 2)
+
+
+class TestComposite6(BaseTestCases.BaseTest):
+
+    shapes = [(4, 2), (2, 3), (1, 4)]
+
+    def get_operators(self):
+        As = [self.get_array(shape, self.matrix_type, self.matrix_kind) for shape in self.shapes]
+        return 1 + KroneckerProduct(As), 1 + kronecker_product_literal(As)
+
+    def test_diag(self):
+        self.assertRaises(OperatorError, self.A_opt.diag)
+    
+    def test_inv(self):
+        self.assertRaises(NotImplementedError, self.A_opt.inv)
+    
+    def test_pow(self):
+        self.assertRaises(NotImplementedError, lambda: self.A_opt ** 2)
+
+
+if __name__ == '__main__':
+    unittest.main()
 
 
