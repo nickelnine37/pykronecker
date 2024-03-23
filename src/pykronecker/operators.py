@@ -12,7 +12,7 @@ from numpy.linalg import inv
 from pykronecker.base import KroneckerOperator
 from pykronecker.composite import OperatorSum, OperatorProduct
 from pykronecker.utils import numeric
-from pykronecker.utils import kronecker_product_literal, kronecker_sum_literal, kronecker_diag_literal, vec, ten
+from pykronecker.utils import kronecker_product_literal, kronecker_sum_literal, kronecker_diag_literal, vec, ten, OperatorError, OperatorCompatibilityError
 from pykronecker.fast_math import multiply_tensor_product, multiply_tensor_sum, multiply_tensor_diag, multiply_tensor_identity, multiply_tensor_ones
 
 
@@ -59,7 +59,7 @@ class KroneckerProduct(BasicKroneckerOperator):
         """
         Initialise by passing in a sequence of 2D Numpy or Jax arrays
         """
-        assert all(A.ndim == 2 for A in As)
+        assert all(A.ndim == 2 for A in As), 'Only 2D arrays can be passed to KroneckerProduct. Vectors are fine, but explicitly make them row or columns vectors by adding an extra dimension'
         super().__init__(As)
 
     def __pow__(self, power: numeric, modulo=None) -> 'KroneckerProduct':
@@ -110,10 +110,16 @@ class KroneckerProduct(BasicKroneckerOperator):
         return self.factor * multiply_tensor_product(self.As, other)
 
     def inv(self) -> 'KroneckerProduct':
-        return (1 / self.factor) * KroneckerProduct([inv(A) for A in self.As])
+        if self.output_shape == self.input_shape:
+            return (1 / self.factor) * KroneckerProduct([inv(A) for A in self.As])
+        else:
+            raise OperatorError('Cannot take the inverse of a non-square operator')
 
     def diag(self) -> ndarray:
-        return self.factor * vec(np.prod(np.array([np.expand_dims(np.diag(A), axis=[j for j in range(len(self.As)) if j != i]) for i, A in enumerate(self.As)], dtype='object')))
+        if self.output_shape == self.input_shape:
+            return self.factor * vec(np.prod(np.array([np.expand_dims(np.diag(A), axis=[j for j in range(len(self.As)) if j != i]) for i, A in enumerate(self.As)], dtype='object')))
+        else:
+            raise OperatorError('Cannot take the diagonal of a non-square operator')
 
     def to_array(self) -> ndarray:
         return self.factor * kronecker_product_literal(self.As)
@@ -411,29 +417,30 @@ class KroneckerOnes(KroneckerOperator):
 
         if input_shape is not None:
             assert like is None, 'Pass either input/output_shape or like, not both'
-            self.input_shape = input_shape
+            self.input_shape = tuple(input_shape)
             if output_shape is not None:
-                self.output_shape = output_shape
+                self.output_shape = tuple(output_shape)
             else:
-                self.output_shape = input_shape
+                self.output_shape = tuple(input_shape)
 
         elif output_shape is not None:
             assert like is None, 'Pass either input/output_shape or like, not both'
-            self.output_shape = output_shape
+            self.output_shape = tuple(output_shape)
             if input_shape is not None:
-                self.input_shape = input_shape
+                self.input_shape = tuple(input_shape)
             else:
-                self.input_shape = output_shape
+                self.input_shape = tuple(output_shape)
 
         elif like is not None:
+            if not isinstance(like, KroneckerOperator):
+                raise ValueError(f'like must be a KroneckerOperator but it is of type {type(like)}')
             self.output_shape = like.output_shape
             self.input_shape = like.input_shape
 
         self.shape = int(np.prod(self.output_shape)), int(np.prod(self.input_shape))
         self.dtype = np.dtype('float64')
 
-        if not isinstance(like, KroneckerOperator):
-            raise ValueError(f'like must be a KroneckerOperator but it is of type {type(like)}')
+
 
     def __copy__(self) -> 'KroneckerOnes':
         new = KroneckerOnes(like=self)
@@ -468,7 +475,10 @@ class KroneckerOnes(KroneckerOperator):
         return self.factor * multiply_tensor_ones(self.input_shape, self.output_shape, other)
 
     def inv(self) -> None:
-        raise np.linalg.LinAlgError('Matrix of ones is singular')
+        if self.shape[0] == self.shape[1]:
+            raise np.linalg.LinAlgError('Matrix of ones is singular')
+        else:
+            raise OperatorError('Cannot take diagonal of non-square operator')
 
     @property
     def T(self) -> 'KroneckerOnes':
@@ -481,7 +491,7 @@ class KroneckerOnes(KroneckerOperator):
         if self.shape[0] == self.shape[1]:
             return np.full((self.shape[0], ), self.factor)
         else:
-            raise ValueError('Cannot take diagonal of non-square operator')
+            raise OperatorError('Cannot take diagonal of non-square operator')
 
     def to_array(self) -> ndarray:
         return np.full(self.shape, self.factor)

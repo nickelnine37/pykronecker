@@ -6,6 +6,12 @@ from functools import reduce
 
 numeric = Union[int, float, complex, np.number]
 
+class OperatorError(Exception):
+    pass
+
+class OperatorCompatibilityError(OperatorError):
+    pass
+
 
 def kronecker_product_literal(As: List[ndarray]) -> ndarray:
     """
